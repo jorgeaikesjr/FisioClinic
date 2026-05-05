@@ -25,3 +25,7 @@ async def interns_page(request: Request):
 @router.get("/reports/absences", response_class=HTMLResponse)
 async def reports_absences_page(request: Request):
     return templates.TemplateResponse("reports_absences.html", {"request": request})
+
+@router.get("/reports/weekly-summary", response_class=HTMLResponse)
+async def reports_weekly_page(request: Request):
+    return templates.TemplateResponse("reports_weekly.html", {"request": request})

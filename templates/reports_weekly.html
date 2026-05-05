@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Resumo Semanal{% endblock %}
+{% block header_title %}Resumo Semanal de Atendimentos{% endblock %}
+
+{% block content %}
+
+<!-- Filtro de semana -->
+<div class="card mb-4">
+    <div class="d-flex align-center" style="gap: 20px; flex-wrap: wrap;">
+        <h3 style="margin: 0;">Semana:</h3>
+        <div class="d-flex align-center" style="gap: 10px;">
+            <button class="btn btn-secondary" onclick="shiftWeek(-1)" title="Semana anterior">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <input type="week" id="filterWeek" class="form-control" style="width: auto;" onchange="loadReport()">
+            <button class="btn btn-secondary" onclick="shiftWeek(1)" title="Próxima semana">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+        <span id="weekLabel" style="color: var(--text-secondary); font-size: 0.9rem;"></span>
+    </div>
+</div>
+
+<!-- Tabela de atendimentos -->
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Paciente</th>
+                    <th>Dia</th>
+                    <th>Horário</th>
+                    <th>Status</th>
+                    <th id="paymentMethodHeader" style="display:none;">Forma de Pagamento</th>
+                    <th id="amountPaidHeader">Valor Pago</th>
+                </tr>
+            </thead>
+            <tbody id="weekly-table-body">
+                <!-- Carregado via JS -->
+            </tbody>
+            <tfoot>
+                <tr id="totalRow" style="display:none;">
+                    <td colspan="3" style="text-align:right; font-weight:600; padding: 14px 16px;">Total da semana:</td>
+                    <td id="totalAmount" style="font-weight:700; font-size: 1.05rem; color: var(--success); padding: 14px 16px;"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/reports_weekly.js"></script>
+{% endblock %}

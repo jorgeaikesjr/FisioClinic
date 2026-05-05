@@ -20,10 +20,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # Rotas - inclua aqui os routers da API
-from api.routers import patients, interns, appointments, views, reports
+from api.routers import patients, interns, appointments, views, reports, settings as settings_router
 
 app.include_router(views.router)
 app.include_router(patients.router, prefix="/api/v1/patients", tags=["Pacientes"])
 app.include_router(interns.router, prefix="/api/v1/interns", tags=["Estagiários"])
 app.include_router(appointments.router, prefix="/api/v1/appointments", tags=["Agendamentos"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"])
+app.include_router(settings_router.router, prefix="/api/v1/settings", tags=["Settings"])

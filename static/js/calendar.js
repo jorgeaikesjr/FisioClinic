@@ -1,11 +1,28 @@
 let calendar;
 let patients = [];
 let interns = [];
+let isPrivateClinic = false; // Controlado pela config do servidor
 
 document.addEventListener('DOMContentLoaded', async function() {
+    await applyClinicConfig();
     await loadSelectData();
     initCalendar();
 });
+
+async function applyClinicConfig() {
+    try {
+        const config = await apiRequest('/settings/clinic-type');
+        isPrivateClinic = config.clinic_type === 'particular';
+    } catch(e) {
+        isPrivateClinic = false;
+    }
+    
+    // Mostra ou oculta o bloco de pagamento no modal
+    const paymentBlock = document.getElementById('paymentBlock');
+    if (paymentBlock) {
+        paymentBlock.style.display = isPrivateClinic ? 'block' : 'none';
+    }
+}
 
 async function loadSelectData() {
     try {
@@ -140,6 +157,8 @@ function openAppointmentModal(appt = null, start = null, end = null) {
         
         document.getElementById('statusGroup').style.display = 'block';
         document.getElementById('appointmentStatus').value = appt.status;
+        document.getElementById('paymentMethod').value = appt.payment_method || '';
+        document.getElementById('amountPaid').value = appt.amount_paid != null ? appt.amount_paid : '';
         
         // Se já está cancelado, não pode editar ou cancelar novamente
         if (appt.status === 'Cancelado') {
@@ -176,10 +195,10 @@ async function saveAppointment(e) {
     const data = {
         patient_id: document.getElementById('selectPatient').value,
         intern_id: document.getElementById('selectIntern').value,
-        // Ao enviar, adicionamos o Z para transformar local em utc caso sua api não seja tz-aware
-        // Mas como pegamos o timezone, enviaremos string pura pro fastapi parsear
         start_time: document.getElementById('startTime').value,
-        end_time: document.getElementById('endTime').value
+        end_time: document.getElementById('endTime').value,
+        payment_method: document.getElementById('paymentMethod').value || null,
+        amount_paid: document.getElementById('amountPaid').value !== '' ? parseFloat(document.getElementById('amountPaid').value) : null
     };
     
     if (id) {

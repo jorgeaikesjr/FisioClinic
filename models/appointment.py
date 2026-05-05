@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy import Column, String, DateTime, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from models.base import Base
 
@@ -20,6 +20,8 @@ class Appointment(Base):
     
     # Campos opcionais
     cancel_reason = Column(String, nullable=True)
+    payment_method = Column(String, nullable=True)  # Pix, Dinheiro, Cartão de Crédito, Cartão de Débito, Transferência
+    amount_paid = Column(Float, nullable=True)
 
     # Relacionamentos bidirecionais
     patient = relationship("Patient", back_populates="appointments")
