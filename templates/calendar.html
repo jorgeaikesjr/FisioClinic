@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Calendário{% endblock %}
+{% block header_title %}Agendamentos{% endblock %}
+
+{% block head %}
+<!-- FullCalendar via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<style>
+    /* Ajustes específicos do FullCalendar para encaixar no nosso CSS premium */
+    .fc {
+        background-color: var(--surface);
+        padding: 20px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        font-family: 'Inter', sans-serif;
+    }
+    .fc-theme-standard th { border-color: var(--border); padding: 10px 0; background: var(--background); }
+    .fc-theme-standard td { border-color: var(--border); }
+    .fc-button-primary {
+        background-color: var(--primary) !important;
+        border-color: var(--primary) !important;
+        text-transform: capitalize;
+    }
+    .fc-button-primary:hover { background-color: var(--primary-hover) !important; }
+    .fc-event {
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        padding: 2px 4px;
+        font-size: 0.85em;
+    }
+    /* Cores de Eventos (Customizadas no JS) */
+    .event-agendado { background-color: var(--primary); color: white; }
+    .event-cancelado { background-color: var(--secondary); color: white; opacity: 0.7; }
+    .event-realizado { background-color: var(--success); color: white; }
+    .event-faltou { background-color: #e53e3e; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="calendar"></div>
+
+<!-- Modal Agendamento -->
+<div class="modal-overlay" id="appointmentModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Novo Agendamento</h3>
+            <i class="fa-solid fa-xmark modal-close" onclick="closeModal('appointmentModal')"></i>
+        </div>
+        <form id="appointmentForm" onsubmit="saveAppointment(event)">
+            <div class="modal-body">
+                <input type="hidden" id="appointmentId">
+                
+                <div class="form-group">
+                    <label>Paciente *</label>
+                    <select id="selectPatient" class="form-control" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Estagiário *</label>
+                    <select id="selectIntern" class="form-control" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group d-flex" style="gap: 15px;">
+                    <div style="flex: 1;">
+                        <label>Início *</label>
+                        <input type="datetime-local" id="startTime" class="form-control" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Término *</label>
+                        <input type="datetime-local" id="endTime" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="statusGroup" style="display: none;">
+                    <label>Status</label>
+                    <select id="appointmentStatus" class="form-control">
+                        <option value="Agendado">Agendado</option>
+                        <option value="Realizado">Realizado</option>
+                        <option value="Faltou">Faltou</option>
+                    </select>
+                </div>
+                
+                <!-- Área de cancelamento (Apenas se for editar) -->
+                <div id="cancelArea" class="mt-4" style="display:none; padding-top: 15px; border-top: 1px dashed var(--border);">
+                    <button type="button" class="btn btn-danger" style="width:100%" onclick="cancelAppointment()">
+                        <i class="fa-solid fa-ban"></i> Cancelar Agendamento
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('appointmentModal')">Fechar</button>
+                <button type="submit" class="btn btn-primary">Salvar Agendamento</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/calendar.js"></script>
+{% endblock %}

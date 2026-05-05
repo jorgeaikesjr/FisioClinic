@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Pacientes{% endblock %}
+{% block header_title %}Gestão de Pacientes{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="d-flex justify-between align-center">
+        <h3>Lista de Pacientes</h3>
+        <button class="btn btn-primary" onclick="openPatientModal()">
+            <i class="fa-solid fa-plus"></i> Novo Paciente
+        </button>
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Contato</th>
+                    <th>Responsável</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="patients-table-body">
+                <!-- Carregado via JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Paciente -->
+<div class="modal-overlay" id="patientModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Novo Paciente</h3>
+            <i class="fa-solid fa-xmark modal-close" onclick="closeModal('patientModal')"></i>
+        </div>
+        <form id="patientForm" onsubmit="savePatient(event)">
+            <div class="modal-body">
+                <input type="hidden" id="patientId">
+                <div class="form-group">
+                    <label>Nome Completo *</label>
+                    <input type="text" id="patientName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Contato (Telefone/Email) *</label>
+                    <input type="text" id="patientContact" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Responsável (Opcional)</label>
+                    <input type="text" id="patientGuardian" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Anamnese / Histórico Inicial</label>
+                    <textarea id="patientAnamnesis" class="form-control"></textarea>
+                </div>
+                <div class="form-group mt-4">
+                    <label>
+                        <input type="checkbox" id="patientActive" checked>
+                        Paciente Ativo
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('patientModal')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Salvar Paciente</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/patients.js"></script>
+{% endblock %}

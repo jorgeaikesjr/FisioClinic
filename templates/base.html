@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %} - FisioClinic</title>
+    <!-- Fonts and Icons via CDN as approved -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Extra head elements -->
+    {% block head %}{% endblock %}
+</head>
+<body>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-notes-medical"></i>
+            FisioClinic
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/calendar" class="nav-item {% if request.url.path == '/calendar' or request.url.path == '/' %}active{% endif %}">
+                <i class="fa-regular fa-calendar"></i> Calendário
+            </a>
+            <a href="/patients" class="nav-item {% if request.url.path == '/patients' %}active{% endif %}">
+                <i class="fa-solid fa-users"></i> Pacientes
+            </a>
+            <a href="/interns" class="nav-item {% if request.url.path == '/interns' %}active{% endif %}">
+                <i class="fa-solid fa-user-doctor"></i> Estagiários
+            </a>
+            <a href="/reports/absences" class="nav-item {% if request.url.path == '/reports/absences' %}active{% endif %}">
+                <i class="fa-solid fa-chart-column"></i> Relatório de Faltas
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-header">
+            <h2 class="page-title">{% block header_title %}Visão Geral{% endblock %}</h2>
+        </header>
+        
+        <div class="content-wrapper">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Common API Utilities JS -->
+    <script>
+        // Global utility to fetch API
+        async function apiRequest(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+            
+            try {
+                const response = await fetch(`/api/v1${endpoint}`, options);
+                if (!response.ok) {
+                    const errData = await response.json().catch(()=>({}));
+                    throw new Error(errData.detail || 'Erro na requisição');
+                }
+                if (response.status !== 204) {
+                    return await response.json();
+                }
+                return null;
+            } catch (error) {
+                console.error('API Error:', error);
+                alert(error.message);
+                throw error;
+            }
+        }
+        
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+    </script>
+    
+    <!-- Page specific scripts -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>
