@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime
@@ -5,7 +6,7 @@ from models.appointment import Appointment
 from models.patient import Patient
 from schemas.report import AbsenceReportItem, WeeklySummaryItem
 
-def get_absences_report(db: Session, start_date: datetime | None = None, end_date: datetime | None = None) -> list[AbsenceReportItem]:
+def get_absences_report(db: Session, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> list[AbsenceReportItem]:
     query = db.query(
         Patient.id.label("patient_id"),
         Patient.name.label("patient_name"),

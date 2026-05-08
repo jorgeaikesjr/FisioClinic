@@ -52,6 +52,13 @@ function initCalendar() {
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         locale: 'pt-br',
+        buttonText: {
+            today: 'Hoje',
+            month: 'Mês',
+            week: 'Semana',
+            day: 'Dia',
+            list: 'Lista'
+        },
         slotMinTime: '07:00:00', // Clínica abre às 7h
         slotMaxTime: '23:00:00', // Clínica fecha às 23h
         allDaySlot: false,

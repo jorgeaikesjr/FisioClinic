@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from models.intern import Intern
 from schemas.intern import InternCreate, InternUpdate
@@ -9,7 +10,7 @@ def create_intern(db: Session, intern_data: InternCreate) -> Intern:
     db.refresh(db_intern)
     return db_intern
 
-def get_intern(db: Session, intern_id: str) -> Intern | None:
+def get_intern(db: Session, intern_id: str) -> Optional[Intern]:
     return db.query(Intern).filter(Intern.id == intern_id).first()
 
 def get_interns(db: Session, skip: int = 0, limit: int = 100, active_only: bool = False) -> list[Intern]:
@@ -18,7 +19,7 @@ def get_interns(db: Session, skip: int = 0, limit: int = 100, active_only: bool 
         query = query.filter(Intern.is_active == True)
     return query.offset(skip).limit(limit).all()
 
-def update_intern(db: Session, intern_id: str, intern_data: InternUpdate) -> Intern | None:
+def update_intern(db: Session, intern_id: str, intern_data: InternUpdate) -> Optional[Intern]:
     db_intern = get_intern(db, intern_id)
     if db_intern:
         update_data = intern_data.model_dump(exclude_unset=True)
@@ -28,7 +29,7 @@ def update_intern(db: Session, intern_id: str, intern_data: InternUpdate) -> Int
         db.refresh(db_intern)
     return db_intern
 
-def delete_intern(db: Session, intern_id: str) -> Intern | None:
+def delete_intern(db: Session, intern_id: str) -> Optional[Intern]:
     """Deleção Lógica: Desativa o estagiário em vez de remover do banco."""
     db_intern = get_intern(db, intern_id)
     if db_intern:

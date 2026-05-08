@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from models.appointment import Appointment
@@ -47,13 +48,13 @@ def create_appointment(db: Session, appointment_data: AppointmentCreate) -> Appo
     db.refresh(db_appointment)
     return db_appointment
 
-def get_appointment(db: Session, appointment_id: str) -> Appointment | None:
+def get_appointment(db: Session, appointment_id: str) -> Optional[Appointment]:
     return db.query(Appointment).filter(Appointment.id == appointment_id).first()
 
 def get_appointments(db: Session, skip: int = 0, limit: int = 100) -> list[Appointment]:
     return db.query(Appointment).offset(skip).limit(limit).all()
 
-def update_appointment(db: Session, appointment_id: str, appointment_data: AppointmentUpdate) -> Appointment | None:
+def update_appointment(db: Session, appointment_id: str, appointment_data: AppointmentUpdate) -> Optional[Appointment]:
     db_appointment = get_appointment(db, appointment_id)
     if not db_appointment:
         return None
@@ -86,7 +87,7 @@ def update_appointment(db: Session, appointment_id: str, appointment_data: Appoi
     db.refresh(db_appointment)
     return db_appointment
 
-def delete_appointment(db: Session, appointment_id: str, reason: str = "Cancelado pelo usuário") -> Appointment | None:
+def delete_appointment(db: Session, appointment_id: str, reason: str = "Cancelado pelo usuário") -> Optional[Appointment]:
     # 4. Cancelamento deve apenas alterar status (Deleção Lógica)
     db_appointment = get_appointment(db, appointment_id)
     if db_appointment:

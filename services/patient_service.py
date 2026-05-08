@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from models.patient import Patient
 from schemas.patient import PatientCreate, PatientUpdate
@@ -10,7 +11,7 @@ def create_patient(db: Session, patient_data: PatientCreate) -> Patient:
     db.refresh(db_patient)
     return db_patient
 
-def get_patient(db: Session, patient_id: str) -> Patient | None:
+def get_patient(db: Session, patient_id: str) -> Optional[Patient]:
     return db.query(Patient).filter(Patient.id == patient_id).first()
 
 def get_patients(db: Session, skip: int = 0, limit: int = 100, active_only: bool = False) -> list[Patient]:
@@ -19,7 +20,7 @@ def get_patients(db: Session, skip: int = 0, limit: int = 100, active_only: bool
         query = query.filter(Patient.is_active == True)
     return query.offset(skip).limit(limit).all()
 
-def update_patient(db: Session, patient_id: str, patient_data: PatientUpdate) -> Patient | None:
+def update_patient(db: Session, patient_id: str, patient_data: PatientUpdate) -> Optional[Patient]:
     db_patient = get_patient(db, patient_id)
     if db_patient:
         # exclude_unset garante que só atualizaremos campos explicitamente enviados
@@ -30,7 +31,7 @@ def update_patient(db: Session, patient_id: str, patient_data: PatientUpdate) ->
         db.refresh(db_patient)
     return db_patient
 
-def delete_patient(db: Session, patient_id: str) -> Patient | None:
+def delete_patient(db: Session, patient_id: str) -> Optional[Patient]:
     """Deleção lógica: Desativa o paciente para manter o histórico."""
     db_patient = get_patient(db, patient_id)
     if db_patient:
@@ -38,3 +39,4 @@ def delete_patient(db: Session, patient_id: str) -> Patient | None:
         db.commit()
         db.refresh(db_patient)
     return db_patient
+
