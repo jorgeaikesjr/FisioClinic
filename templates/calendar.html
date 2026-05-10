@@ -78,8 +78,33 @@
                         <input type="datetime-local" id="endTime" class="form-control" required>
                     </div>
                 </div>
+                <div class="form-group" id="recurrenceToggleGroup">
+                    <label style="cursor: pointer; font-weight: 600;">
+                        <input type="checkbox" id="isRecurring" onchange="toggleRecurrence()">
+                        Agendamento Recorrente
+                    </label>
+                </div>
+
+                <div id="recurrenceBlock" style="display: none; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label>Dias da Semana</label>
+                        <div class="d-flex" style="gap: 15px; flex-wrap: wrap;">
+                            <label><input type="checkbox" name="recurDays" value="0"> Seg</label>
+                            <label><input type="checkbox" name="recurDays" value="1"> Ter</label>
+                            <label><input type="checkbox" name="recurDays" value="2"> Qua</label>
+                            <label><input type="checkbox" name="recurDays" value="3"> Qui</label>
+                            <label><input type="checkbox" name="recurDays" value="4"> Sex</label>
+                            <label><input type="checkbox" name="recurDays" value="5"> Sáb</label>
+                            <label><input type="checkbox" name="recurDays" value="6"> Dom</label>
+                        </div>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label>Repetir por quantas semanas?</label>
+                        <input type="number" id="recurWeeks" class="form-control" min="1" max="52" value="4" style="width: 100px;">
+                    </div>
+                </div>
                 
-                <div class="form-group" id="statusGroup" style="display: none;">
+                <div class="form-group" id="statusGroup">
                     <label>Status</label>
                     <select id="appointmentStatus" class="form-control">
                         <option value="Agendado">Agendado</option>

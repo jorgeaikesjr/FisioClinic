@@ -47,9 +47,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>Paciente</th>
-                    <th>Contato</th>
-                    <th>Quantidade de Faltas</th>
+                    <th style="cursor: pointer;" onclick="sortTable('patient_name')">Paciente <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('patient_contact')">Contato <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('absences_count')">Quantidade de Faltas <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
                 </tr>
             </thead>
             <tbody id="reports-table-body">
@@ -61,5 +61,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/reports_absences.js"></script>
+<script src="/static/js/reports_absences.js?v=1.1"></script>
 {% endblock %}

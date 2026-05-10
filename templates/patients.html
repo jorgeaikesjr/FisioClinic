@@ -16,10 +16,10 @@
         <table>
             <thead>
                 <tr>
-                    <th>Nome</th>
-                    <th>Contato</th>
-                    <th>Responsável</th>
-                    <th>Status</th>
+                    <th style="cursor: pointer;" onclick="sortTable('name')">Nome <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('contact')">Contato <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('guardian')">Responsável <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('is_active')">Status <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -73,5 +73,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/patients.js"></script>
+<script src="/static/js/patients.js?v=1.1"></script>
 {% endblock %}

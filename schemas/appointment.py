@@ -11,6 +11,8 @@ class AppointmentBase(BaseModel):
 class AppointmentCreate(AppointmentBase):
     payment_method: Optional[str] = Field(None, description="Forma de pagamento (Pix, Dinheiro, Cartão de Crédito, Cartão de Débito, Transferência)")
     amount_paid: Optional[float] = Field(None, description="Valor pago pelo paciente")
+    recurrence_days: Optional[list[int]] = Field(None, description="Dias da semana para recorrência (0=Seg, 6=Dom)")
+    recurrence_weeks: Optional[int] = Field(None, description="Número de semanas para a recorrência")
 
 class AppointmentUpdate(BaseModel):
     patient_id: Optional[str] = Field(None, description="ID do paciente")

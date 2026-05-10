@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', loadPatients);
 
 let patientsList = [];
+let sortCol = 'name';
+let sortAsc = true;
 
 async function loadPatients() {
     try {
@@ -11,6 +13,16 @@ async function loadPatients() {
     }
 }
 
+function sortTable(col) {
+    if (sortCol === col) {
+        sortAsc = !sortAsc;
+    } else {
+        sortCol = col;
+        sortAsc = true;
+    }
+    renderTable();
+}
+
 function renderTable() {
     const tbody = document.getElementById('patients-table-body');
     tbody.innerHTML = '';
@@ -19,8 +31,25 @@ function renderTable() {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Nenhum paciente cadastrado.</td></tr>';
         return;
     }
+
+    let sortedData = [...patientsList];
+    sortedData.sort((a, b) => {
+        let valA = a[sortCol];
+        let valB = b[sortCol];
+
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+        
+        // Tratar nulos para comparação
+        if (valA === null) valA = '';
+        if (valB === null) valB = '';
+
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+    });
     
-    patientsList.forEach(p => {
+    sortedData.forEach(p => {
         const badge = p.is_active !== false // Trata undef/true como ativo pra retrocompatibilidade
             ? '<span class="badge badge-success">Ativo</span>'
             : '<span class="badge badge-gray">Inativo</span>';

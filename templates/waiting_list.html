@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Fila de Espera{% endblock %}
+{% block header_title %}Gerenciamento de Fila de Espera{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Pacientes na Fila de Espera</h3>
+        <button class="btn btn-primary" onclick="openWaitingListModal()">
+            <i class="fa-solid fa-plus"></i> Adicionar Paciente à Fila
+        </button>
+    </div>
+
+    <!-- Filtro de Categoria -->
+    <div style="margin-bottom: 20px;">
+        <label for="filterCategory">Filtrar por Categoria:</label>
+        <select id="filterCategory" class="form-control" style="width: auto; display: inline-block;" onchange="loadWaitingList()">
+            <option value="">Todas as Categorias</option>
+            <option value="Neuro Adulto">Neuro Adulto</option>
+            <option value="Neuro Infantil">Neuro Infantil</option>
+            <option value="Ortopedia">Ortopedia</option>
+        </select>
+    </div>
+
+    <div class="table-container">
+        <table class="table" id="waitingListTable">
+            <thead>
+                <tr>
+                    <th>Data de Inclusão</th>
+                    <th>Paciente</th>
+                    <th>Contato</th>
+                    <th>Categoria</th>
+                    <th>Observações</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="waitingListBody">
+                <!-- Dados preenchidos via JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal de Adição -->
+<div class="modal-overlay" id="waitingListModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Adicionar à Fila de Espera</h3>
+            <span class="modal-close" onclick="closeModal('waitingListModal')">&times;</span>
+        </div>
+        <form id="waitingListForm" onsubmit="submitWaitingList(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Paciente Existente</label>
+                    <select id="wlPatient" class="form-control" required>
+                        <option value="">Selecione o paciente...</option>
+                    </select>
+                    <small style="color: var(--text-muted); font-size: 0.8em; margin-top: 4px; display: block;">O paciente precisa estar cadastrado na aba "Pacientes".</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="wlCategory" class="form-control" required>
+                        <option value="">Selecione a categoria...</option>
+                        <option value="Neuro Adulto">Neuro Adulto</option>
+                        <option value="Neuro Infantil">Neuro Infantil</option>
+                        <option value="Ortopedia">Ortopedia</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea id="wlNotes" class="form-control" rows="3" placeholder="Informações adicionais (opcional)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('waitingListModal')">Cancelar</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Adicionar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/waiting_list.js?v=1.1"></script>
+{% endblock %}

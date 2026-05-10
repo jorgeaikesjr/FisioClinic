@@ -1,12 +1,24 @@
 document.addEventListener('DOMContentLoaded', loadInterns);
 
 let internsList = [];
+let sortCol = 'name';
+let sortAsc = true;
 
 async function loadInterns() {
     try {
         internsList = await apiRequest('/interns/');
         renderTable();
     } catch (e) {}
+}
+
+function sortTable(col) {
+    if (sortCol === col) {
+        sortAsc = !sortAsc;
+    } else {
+        sortCol = col;
+        sortAsc = true;
+    }
+    renderTable();
 }
 
 function renderTable() {
@@ -17,8 +29,21 @@ function renderTable() {
         tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhum estagiário cadastrado.</td></tr>';
         return;
     }
+
+    let sortedData = [...internsList];
+    sortedData.sort((a, b) => {
+        let valA = a[sortCol];
+        let valB = b[sortCol];
+
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+    });
     
-    internsList.forEach(i => {
+    sortedData.forEach(i => {
         const badge = i.is_active 
             ? '<span class="badge badge-success">Ativo</span>'
             : '<span class="badge badge-gray">Inativo</span>';

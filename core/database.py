@@ -10,6 +10,7 @@ from models.base import Base
 import models.patient
 import models.intern
 import models.appointment
+import models.waiting_list
 
 # Configuração do engine do SQLite
 # O parâmetro check_same_thread=False é necessário apenas para o SQLite no FastAPI.

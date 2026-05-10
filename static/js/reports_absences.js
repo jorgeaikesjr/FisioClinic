@@ -1,3 +1,7 @@
+let absencesList = [];
+let sortCol = 'absences_count';
+let sortAsc = false; // Começa por maior numero de faltas
+
 document.addEventListener('DOMContentLoaded', () => {
     // Inicializar inputs de data com valores padrões atuais
     const now = new Date();
@@ -107,20 +111,44 @@ async function applyFilter() {
     
     try {
         const reportData = await apiRequest(url);
-        renderTable(reportData);
+        absencesList = reportData;
+        renderTable();
     } catch (e) {}
 }
 
-function renderTable(data) {
+function sortTable(col) {
+    if (sortCol === col) {
+        sortAsc = !sortAsc;
+    } else {
+        sortCol = col;
+        sortAsc = true;
+    }
+    renderTable();
+}
+
+function renderTable() {
     const tbody = document.getElementById('reports-table-body');
     tbody.innerHTML = '';
     
-    if (data.length === 0) {
+    if (absencesList.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhuma falta registrada neste período. Parabéns!</td></tr>';
         return;
     }
+
+    let sortedData = [...absencesList];
+    sortedData.sort((a, b) => {
+        let valA = a[sortCol];
+        let valB = b[sortCol];
+
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+    });
     
-    data.forEach(item => {
+    sortedData.forEach(item => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${item.patient_name}</strong></td>

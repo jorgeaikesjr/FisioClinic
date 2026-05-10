@@ -9,7 +9,7 @@ from services import appointment_service
 
 router = APIRouter()
 
-@router.post("/", response_model=AppointmentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=List[AppointmentResponse], status_code=status.HTTP_201_CREATED)
 def create_appointment(appointment: AppointmentCreate, db: Session = Depends(get_db)):
     try:
         return appointment_service.create_appointment(db=db, appointment_data=appointment)

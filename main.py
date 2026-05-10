@@ -14,13 +14,14 @@ async def lifespan(app: FastAPI):
 
 # Inicialização do FastAPI
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
+app.state.settings = settings
 
 # Montar arquivos estáticos e templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # Rotas - inclua aqui os routers da API
-from api.routers import patients, interns, appointments, views, reports, settings as settings_router
+from api.routers import patients, interns, appointments, views, reports, settings as settings_router, waiting_list
 
 app.include_router(views.router)
 app.include_router(patients.router, prefix="/api/v1/patients", tags=["Pacientes"])
@@ -28,3 +29,4 @@ app.include_router(interns.router, prefix="/api/v1/interns", tags=["Estagiários
 app.include_router(appointments.router, prefix="/api/v1/appointments", tags=["Agendamentos"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"])
 app.include_router(settings_router.router, prefix="/api/v1/settings", tags=["Settings"])
+app.include_router(waiting_list.router, prefix="/api/v1/waiting-list", tags=["Fila de Espera"])

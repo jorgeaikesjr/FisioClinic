@@ -29,3 +29,11 @@ async def reports_absences_page(request: Request):
 @router.get("/reports/weekly-summary", response_class=HTMLResponse)
 async def reports_weekly_page(request: Request):
     return templates.TemplateResponse("reports_weekly.html", {"request": request})
+
+@router.get("/waiting-list", response_class=HTMLResponse)
+async def waiting_list_page(request: Request):
+    return templates.TemplateResponse("waiting_list.html", {"request": request})
+
+@router.get("/reports/waiting-list", response_class=HTMLResponse)
+async def reports_waiting_list_page(request: Request):
+    return templates.TemplateResponse("reports_waiting_list.html", {"request": request})

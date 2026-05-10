@@ -162,10 +162,13 @@ function openAppointmentModal(appt = null, start = null, end = null) {
         document.getElementById('startTime').value = appt.start_time.slice(0, 16);
         document.getElementById('endTime').value = appt.end_time.slice(0, 16);
         
-        document.getElementById('statusGroup').style.display = 'block';
         document.getElementById('appointmentStatus').value = appt.status;
         document.getElementById('paymentMethod').value = appt.payment_method || '';
         document.getElementById('amountPaid').value = appt.amount_paid != null ? appt.amount_paid : '';
+        
+        document.getElementById('recurrenceToggleGroup').style.display = 'none';
+        document.getElementById('isRecurring').checked = false;
+        toggleRecurrence();
         
         // Se já está cancelado, não pode editar ou cancelar novamente
         if (appt.status === 'Cancelado') {
@@ -187,9 +190,20 @@ function openAppointmentModal(appt = null, start = null, end = null) {
         document.getElementById('startTime').value = toLocalISOString(s);
         document.getElementById('endTime').value = toLocalISOString(e);
         
-        document.getElementById('statusGroup').style.display = 'none';
         document.getElementById('cancelArea').style.display = 'none';
         form.querySelectorAll('input, select, button[type="submit"]').forEach(el => el.disabled = false);
+
+        document.getElementById('recurrenceToggleGroup').style.display = 'block';
+        document.getElementById('isRecurring').checked = false;
+        toggleRecurrence();
+        // Marcar o dia atual como pré-selecionado na recorrência
+        const currentDay = s.getDay();
+        // JS getDay(): 0=Dom, 1=Seg...
+        // No nosso backend: 0=Seg, 6=Dom
+        const backDay = currentDay === 0 ? 6 : currentDay - 1;
+        document.querySelectorAll('input[name="recurDays"]').forEach(cb => {
+            cb.checked = (parseInt(cb.value) === backDay);
+        });
     }
     
     openModal('appointmentModal');
@@ -208,8 +222,17 @@ async function saveAppointment(e) {
         amount_paid: document.getElementById('amountPaid').value !== '' ? parseFloat(document.getElementById('amountPaid').value) : null
     };
     
-    if (id) {
-        data.status = document.getElementById('appointmentStatus').value;
+    data.status = document.getElementById('appointmentStatus').value;
+    
+    if (!id && document.getElementById('isRecurring').checked) {
+        const days = Array.from(document.querySelectorAll('input[name="recurDays"]:checked')).map(cb => parseInt(cb.value));
+        const weeks = parseInt(document.getElementById('recurWeeks').value);
+        if (days.length === 0) {
+            alert('Por favor, selecione pelo menos um dia da semana para a recorrência.');
+            return;
+        }
+        data.recurrence_days = days;
+        data.recurrence_weeks = weeks;
     }
     
     try {
@@ -235,4 +258,9 @@ async function cancelAppointment() {
         closeModal('appointmentModal');
         calendar.refetchEvents();
     } catch(err) {}
+}
+
+function toggleRecurrence() {
+    const isRecurring = document.getElementById('isRecurring').checked;
+    document.getElementById('recurrenceBlock').style.display = isRecurring ? 'block' : 'none';
 }
