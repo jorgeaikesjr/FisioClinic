@@ -35,6 +35,9 @@
             <a href="/reports/weekly-summary" class="nav-item {% if request.url.path == '/reports/weekly-summary' %}active{% endif %}">
                 <i class="fa-solid fa-receipt"></i> Resumo Semanal
             </a>
+            <a href="/fitting-list" class="nav-item {% if request.url.path == '/fitting-list' %}active{% endif %}">
+                <i class="fa-solid fa-bolt"></i> Lista de Encaixe
+            </a>
             {% endif %}
             {% if request.app.state.settings.CLINIC_TYPE == 'escola' %}
             <a href="/waiting-list" class="nav-item {% if request.url.path == '/waiting-list' %}active{% endif %}">
@@ -42,6 +45,9 @@
             </a>
             <a href="/reports/waiting-list" class="nav-item {% if request.url.path == '/reports/waiting-list' %}active{% endif %}">
                 <i class="fa-solid fa-chart-pie"></i> Relatório de Fila
+            </a>
+            <a href="/reports/attendance" class="nav-item {% if request.url.path == '/reports/attendance' %}active{% endif %}">
+                <i class="fa-solid fa-clipboard-list"></i> Relatório de Atendimentos
             </a>
             {% endif %}
         </nav>

@@ -9,6 +9,7 @@ class AppointmentBase(BaseModel):
     intern_id: str = Field(..., description="ID do estagiário associado ao agendamento")
     start_time: datetime = Field(..., description="Data e hora de início")
     end_time: datetime = Field(..., description="Data e hora de término")
+    category: Optional[str] = Field(None, description="Categoria do agendamento (Apenas modo Escola)")
 
 class AppointmentCreate(AppointmentBase):
     payment_method: Optional[str] = Field(None, description="Forma de pagamento (Pix, Dinheiro, Cartão de Crédito, Cartão de Débito, Transferência)")
@@ -25,6 +26,7 @@ class AppointmentUpdate(BaseModel):
     cancel_reason: Optional[str] = Field(None, description="Motivo do cancelamento")
     payment_method: Optional[str] = Field(None, description="Forma de pagamento")
     amount_paid: Optional[float] = Field(None, description="Valor pago")
+    category: Optional[str] = Field(None, description="Categoria do agendamento")
 
 class AppointmentResponse(AppointmentBase):
     id: str

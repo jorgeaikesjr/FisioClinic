@@ -16,3 +16,8 @@ class WeeklySummaryItem(BaseModel):
     status: str
     payment_method: Optional[str] = None
     amount_paid: Optional[float] = None
+
+class AttendanceReport(BaseModel):
+    total_count: int
+    status_summary: dict[str, int]
+    category_summary: dict[str, dict[str, int]] # Categoria -> { Status -> Count }

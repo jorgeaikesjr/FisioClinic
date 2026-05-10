@@ -22,6 +22,10 @@ def read_patients(request: Request):
 async def interns_page(request: Request):
     return templates.TemplateResponse("interns.html", {"request": request})
 
+@router.get("/fitting-list", response_class=HTMLResponse)
+async def fitting_list_page(request: Request):
+    return templates.TemplateResponse("fitting_list.html", {"request": request})
+
 @router.get("/reports/absences", response_class=HTMLResponse)
 async def reports_absences_page(request: Request):
     return templates.TemplateResponse("reports_absences.html", {"request": request})
@@ -37,3 +41,7 @@ async def waiting_list_page(request: Request):
 @router.get("/reports/waiting-list", response_class=HTMLResponse)
 async def reports_waiting_list_page(request: Request):
     return templates.TemplateResponse("reports_waiting_list.html", {"request": request})
+
+@router.get("/reports/attendance", response_class=HTMLResponse)
+async def reports_attendance_page(request: Request):
+    return templates.TemplateResponse("reports_attendance.html", {"request": request})

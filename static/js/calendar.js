@@ -22,6 +22,12 @@ async function applyClinicConfig() {
     if (paymentBlock) {
         paymentBlock.style.display = isPrivateClinic ? 'block' : 'none';
     }
+    
+    // Mostra ou oculta o bloco de categoria no modal (apenas Escola)
+    const categoryGroup = document.getElementById('categoryGroup');
+    if (categoryGroup) {
+        categoryGroup.style.display = isPrivateClinic ? 'none' : 'block';
+    }
 }
 
 async function loadSelectData() {
@@ -184,6 +190,7 @@ function openAppointmentModal(appt = null, start = null, end = null) {
         document.getElementById('appointmentStatus').value = appt.status;
         document.getElementById('paymentMethod').value = appt.payment_method || '';
         document.getElementById('amountPaid').value = appt.amount_paid != null ? appt.amount_paid : '';
+        document.getElementById('appointmentCategory').value = appt.category || '';
         
         document.getElementById('recurrenceToggleGroup').style.display = 'none';
         document.getElementById('isRecurring').checked = false;
@@ -238,7 +245,8 @@ async function saveAppointment(e) {
         start_time: document.getElementById('startTime').value,
         end_time: document.getElementById('endTime').value,
         payment_method: document.getElementById('paymentMethod').value || null,
-        amount_paid: document.getElementById('amountPaid').value !== '' ? parseFloat(document.getElementById('amountPaid').value) : null
+        amount_paid: document.getElementById('amountPaid').value !== '' ? parseFloat(document.getElementById('amountPaid').value) : null,
+        category: !isPrivateClinic ? document.getElementById('appointmentCategory').value : null
     };
     
     data.status = document.getElementById('appointmentStatus').value;

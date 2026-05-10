@@ -22,6 +22,7 @@ class Appointment(Base):
     cancel_reason = Column(String, nullable=True)
     payment_method = Column(String, nullable=True)  # Pix, Dinheiro, Cartão de Crédito, Cartão de Débito, Transferência
     amount_paid = Column(Float, nullable=True)
+    category = Column(String, nullable=True, index=True)
 
     # Relacionamentos bidirecionais
     patient = relationship("Patient", back_populates="appointments")

@@ -4,7 +4,7 @@ from sqlalchemy import func
 from datetime import datetime
 from models.appointment import Appointment
 from models.patient import Patient
-from schemas.report import AbsenceReportItem, WeeklySummaryItem
+from schemas.report import AbsenceReportItem, WeeklySummaryItem, AttendanceReport
 
 def get_absences_report(db: Session, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> list[AbsenceReportItem]:
     query = db.query(
@@ -62,3 +62,35 @@ def get_weekly_summary(db: Session, start_date: datetime, end_date: datetime) ->
         )
         for appt, patient_name in appointments
     ]
+
+def get_attendance_report(db: Session, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> AttendanceReport:
+    query = db.query(Appointment)
+    
+    if start_date:
+        query = query.filter(Appointment.start_time >= start_date)
+    if end_date:
+        query = query.filter(Appointment.start_time <= end_date)
+        
+    appointments = query.all()
+    
+    status_summary = {}
+    category_summary = {}
+    total_count = len(appointments)
+    
+    for appt in appointments:
+        # Agrupamento por Status Geral
+        st = appt.status or "Indefinido"
+        status_summary[st] = status_summary.get(st, 0) + 1
+        
+        # Agrupamento por Categoria com Detalhe de Status
+        cat = appt.category or "Sem Categoria"
+        if cat not in category_summary:
+            category_summary[cat] = {}
+        
+        category_summary[cat][st] = category_summary[cat].get(st, 0) + 1
+        
+    return AttendanceReport(
+        total_count=total_count,
+        status_summary=status_summary,
+        category_summary=category_summary
+    )

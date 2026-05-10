@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from api.dependencies import get_db
-from schemas.report import AbsenceReportItem, WeeklySummaryItem
+from schemas.report import AbsenceReportItem, WeeklySummaryItem, AttendanceReport
 from services import report_service
 
 router = APIRouter()
@@ -25,3 +25,12 @@ def read_weekly_summary(
     db: Session = Depends(get_db)
 ):
     return report_service.get_weekly_summary(db=db, start_date=start_date, end_date=end_date)
+
+
+@router.get("/attendance", response_model=AttendanceReport)
+def read_attendance_report(
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+    db: Session = Depends(get_db)
+):
+    return report_service.get_attendance_report(db=db, start_date=start_date, end_date=end_date)
