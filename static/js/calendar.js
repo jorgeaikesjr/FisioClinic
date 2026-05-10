@@ -157,8 +157,27 @@ function openAppointmentModal(appt = null, start = null, end = null) {
     if (appt) {
         title.innerText = 'Editar Agendamento';
         document.getElementById('appointmentId').value = appt.id;
-        document.getElementById('selectPatient').value = appt.patient_id;
-        document.getElementById('selectIntern').value = appt.intern_id;
+        
+        const pSelect = document.getElementById('selectPatient');
+        const iSelect = document.getElementById('selectIntern');
+
+        // Garantir que o paciente atual apareça na lista mesmo se estiver inativo
+        if (!Array.from(pSelect.options).some(opt => opt.value === appt.patient_id)) {
+            // Busca o nome do paciente no objeto retornado pelo GET /appointments/{id} 
+            // assumindo que o backend retornou o objeto aninhado ou temos os dados.
+            // No náutico, appt.patient e appt.intern devem estar lá por causa do joinedload no service.
+            const pName = appt.patient ? appt.patient.name : 'Paciente Inativo';
+            pSelect.options.add(new Option(`${pName} (Inativo)`, appt.patient_id));
+        }
+        
+        // Garantir que o estagiário atual apareça na lista mesmo se estiver inativo
+        if (!Array.from(iSelect.options).some(opt => opt.value === appt.intern_id)) {
+            const iName = appt.intern ? appt.intern.name : 'Estagiário Inativo';
+            iSelect.options.add(new Option(`${iName} (Inativo)`, appt.intern_id));
+        }
+
+        pSelect.value = appt.patient_id;
+        iSelect.value = appt.intern_id;
         document.getElementById('startTime').value = appt.start_time.slice(0, 16);
         document.getElementById('endTime').value = appt.end_time.slice(0, 16);
         

@@ -30,8 +30,17 @@ def update_intern(intern_id: str, intern: InternUpdate, db: Session = Depends(ge
         raise HTTPException(status_code=404, detail="Estagiário não encontrado")
     return db_intern
 
+@router.get("/{intern_id}/future-count")
+def read_intern_future_count(intern_id: str, db: Session = Depends(get_db)):
+    from services import appointment_service
+    return {"count": appointment_service.count_future_appointments(db, intern_id=intern_id)}
+
 @router.delete("/{intern_id}", response_model=InternResponse)
-def delete_intern(intern_id: str, db: Session = Depends(get_db)):
+def delete_intern(intern_id: str, cancel_future: bool = False, db: Session = Depends(get_db)):
+    if cancel_future:
+        from services import appointment_service
+        appointment_service.cancel_future_appointments(db, intern_id=intern_id)
+        
     # Retornamos o objeto com is_active=False para demonstrar a deleção lógica
     db_intern = intern_service.delete_intern(db=db, intern_id=intern_id)
     if db_intern is None:

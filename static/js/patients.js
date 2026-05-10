@@ -126,10 +126,31 @@ async function savePatient(e) {
 }
 
 async function deletePatient(id) {
-    if (confirm('Deseja inativar este paciente? Ele não aparecerá mais para novos agendamentos, mas o histórico será mantido.')) {
-        try {
-            await apiRequest(`/patients/${id}`, 'DELETE');
-            await loadPatients();
-        } catch(error){}
+    try {
+        const check = await apiRequest(`/patients/${id}/future-count`);
+        const count = check.count;
+        
+        let cancelFuture = false;
+        let message = 'Deseja inativar este paciente? Ele não aparecerá mais para novos agendamentos, mas o histórico será mantido.';
+        
+        if (count > 0) {
+            message = `Este paciente possui ${count} agendamento(s) futuro(s).\n\nDeseja inativá-lo e CANCELAR todos os agendamentos futuros?\n\n- Clique em [OK] para Inativar e Cancelar os ${count} agendamentos.\n- Clique em [Cancelar] para apenas Inativar (mantendo os agendamentos na agenda).`;
+            if (confirm(message)) {
+                cancelFuture = true;
+            } else {
+                // Pergunta se deseja apenas inativar sem cancelar
+                if (!confirm('Deseja apenas inativar o paciente (mantendo os agendamentos futuros)?')) {
+                    return; // Aborta tudo
+                }
+                cancelFuture = false;
+            }
+        } else {
+            if (!confirm(message)) return;
+        }
+
+        await apiRequest(`/patients/${id}?cancel_future=${cancelFuture}`, 'DELETE');
+        await loadPatients();
+    } catch(error) {
+        console.error('Erro ao inativar paciente:', error);
     }
 }

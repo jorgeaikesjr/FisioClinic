@@ -1,6 +1,8 @@
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
+from schemas.patient import PatientResponse
+from schemas.intern import InternResponse
 
 class AppointmentBase(BaseModel):
     patient_id: str = Field(..., description="ID do paciente associado ao agendamento")
@@ -30,6 +32,10 @@ class AppointmentResponse(AppointmentBase):
     cancel_reason: Optional[str] = None
     payment_method: Optional[str] = None
     amount_paid: Optional[float] = None
+    
+    # Detalhes aninhados para exibição consistente (mesmo se inativo)
+    patient: Optional[PatientResponse] = None
+    intern: Optional[InternResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -112,10 +112,31 @@ async function saveIntern(e) {
 }
 
 async function deleteIntern(id) {
-    if (confirm('Deseja inativar este estagiário? Ele não aparecerá mais para novos agendamentos.')) {
-        try {
-            await apiRequest(`/interns/${id}`, 'DELETE');
-            await loadInterns();
-        } catch(error){}
+    try {
+        const check = await apiRequest(`/interns/${id}/future-count`);
+        const count = check.count;
+        
+        let cancelFuture = false;
+        let message = 'Deseja inativar este estagiário? Ele não aparecerá mais para novos agendamentos.';
+        
+        if (count > 0) {
+            message = `Este estagiário possui ${count} agendamento(s) futuro(s).\n\nDeseja inativá-lo e CANCELAR todos os agendamentos futuros?\n\n- Clique em [OK] para Inativar e Cancelar os ${count} agendamentos.\n- Clique em [Cancelar] para apenas Inativar (mantendo os agendamentos na agenda).`;
+            if (confirm(message)) {
+                cancelFuture = true;
+            } else {
+                // Pergunta se deseja apenas inativar sem cancelar
+                if (!confirm('Deseja apenas inativar o estagiário (mantendo os agendamentos futuros)?')) {
+                    return; // Aborta tudo
+                }
+                cancelFuture = false;
+            }
+        } else {
+            if (!confirm(message)) return;
+        }
+
+        await apiRequest(`/interns/${id}?cancel_future=${cancelFuture}`, 'DELETE');
+        await loadInterns();
+    } catch(error) {
+        console.error('Erro ao inativar estagiário:', error);
     }
 }

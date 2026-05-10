@@ -19,17 +19,21 @@ def check_overlap(db: Session, intern_id: str, start_time: datetime, end_time: d
         
     return query.first() is not None
 
-from services import patient_service
+from services import patient_service, intern_service
 
 def create_appointment(db: Session, appointment_data: AppointmentCreate) -> list[Appointment]:
     # 2. Validar que data_fim > data_inicio
     if appointment_data.start_time >= appointment_data.end_time:
         raise ValueError("A data/hora de término deve ser posterior à data/hora de início.")
 
-    # 5. Validar se o paciente está ativo
     patient = patient_service.get_patient(db, appointment_data.patient_id)
     if patient and not patient.is_active:
-        raise ValueError("Pacientes inativos não podem ser agendados.")
+        raise ValueError(f"O paciente '{patient.name}' está inativo e não pode receber novos agendamentos.")
+
+    # Validar se o estagiário está ativo
+    intern = intern_service.get_intern(db, appointment_data.intern_id)
+    if intern and not intern.is_active:
+        raise ValueError(f"O estagiário '{intern.name}' está inativo e não pode receber novos agendamentos.")
 
     appointments_to_create = []
 
@@ -87,7 +91,10 @@ def create_appointment(db: Session, appointment_data: AppointmentCreate) -> list
     return appointments_to_create
 
 def get_appointment(db: Session, appointment_id: str) -> Optional[Appointment]:
-    return db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    return db.query(Appointment).options(
+        joinedload(Appointment.patient),
+        joinedload(Appointment.intern)
+    ).filter(Appointment.id == appointment_id).first()
 
 def get_appointments(db: Session, skip: int = 0, limit: int = 100) -> list[Appointment]:
     return db.query(Appointment).offset(skip).limit(limit).all()
@@ -116,6 +123,18 @@ def update_appointment(db: Session, appointment_id: str, appointment_data: Appoi
         )
         if has_conflict:
             raise ValueError("O estagiário já possui outro agendamento neste horário.")
+
+        # Validar se o estagiário está ativo APENAS se estiver sendo alterado
+        if appointment_data.intern_id and appointment_data.intern_id != db_appointment.intern_id:
+            intern = intern_service.get_intern(db, appointment_data.intern_id)
+            if intern and not intern.is_active:
+                raise ValueError(f"Não é possível transferir agendamentos para o estagiário '{intern.name}' pois ele está inativo.")
+
+        # Validar paciente se alterado
+        if appointment_data.patient_id and appointment_data.patient_id != db_appointment.patient_id:
+            patient = patient_service.get_patient(db, appointment_data.patient_id)
+            if patient and not patient.is_active:
+                raise ValueError(f"Não é possível transferir agendamentos para o paciente '{patient.name}' pois ele está inativo.")
 
     update_data = appointment_data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -160,3 +179,36 @@ def get_calendar_events(db: Session, start_date: datetime, end_date: datetime) -
             "status": appt.status
         })
     return events
+
+def count_future_appointments(db: Session, patient_id: str = None, intern_id: str = None) -> int:
+    """Conta agendamentos futuros não cancelados."""
+    now = datetime.now()
+    query = db.query(Appointment).filter(
+        Appointment.start_time > now,
+        Appointment.status != "Cancelado"
+    )
+    if patient_id:
+        query = query.filter(Appointment.patient_id == patient_id)
+    if intern_id:
+        query = query.filter(Appointment.intern_id == intern_id)
+    
+    return query.count()
+
+def cancel_future_appointments(db: Session, patient_id: str = None, intern_id: str = None):
+    """Cancela em lote agendamentos futuros."""
+    now = datetime.now()
+    query = db.query(Appointment).filter(
+        Appointment.start_time > now,
+        Appointment.status != "Cancelado"
+    )
+    if patient_id:
+        query = query.filter(Appointment.patient_id == patient_id)
+    if intern_id:
+        query = query.filter(Appointment.intern_id == intern_id)
+    
+    future_appts = query.all()
+    for appt in future_appts:
+        appt.status = "Cancelado"
+        appt.cancel_reason = "Cancelado automaticamente por inativação do registro vinculado."
+    
+    db.commit()

@@ -30,8 +30,17 @@ def update_patient(patient_id: str, patient: PatientUpdate, db: Session = Depend
         raise HTTPException(status_code=404, detail="Paciente não encontrado")
     return db_patient
 
+@router.get("/{patient_id}/future-count")
+def read_patient_future_count(patient_id: str, db: Session = Depends(get_db)):
+    from services import appointment_service
+    return {"count": appointment_service.count_future_appointments(db, patient_id=patient_id)}
+
 @router.delete("/{patient_id}", response_model=PatientResponse)
-def delete_patient(patient_id: str, db: Session = Depends(get_db)):
+def delete_patient(patient_id: str, cancel_future: bool = False, db: Session = Depends(get_db)):
+    if cancel_future:
+        from services import appointment_service
+        appointment_service.cancel_future_appointments(db, patient_id=patient_id)
+    
     db_patient = patient_service.delete_patient(db=db, patient_id=patient_id)
     if db_patient is None:
         raise HTTPException(status_code=404, detail="Paciente não encontrado")
