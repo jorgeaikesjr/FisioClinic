@@ -17,6 +17,7 @@
             <thead>
                 <tr>
                     <th style="cursor: pointer;" onclick="sortTable('name')">Nome <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('contact')">Contato <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
                     <th style="cursor: pointer;" onclick="sortTable('is_active')">Status <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
                     <th>Ações</th>
                 </tr>
@@ -41,6 +42,14 @@
                 <div class="form-group">
                     <label>Nome Completo *</label>
                     <input type="text" id="internName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Contato (Telefone/Email)</label>
+                    <input type="text" id="internContact" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea id="internNotes" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="form-group">
                     <label>

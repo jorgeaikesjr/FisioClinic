@@ -11,6 +11,8 @@ class Intern(Base):
     
     # Campos obrigatórios
     name = Column(String, nullable=False, index=True)
+    contact = Column(String, nullable=True)
+    notes = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     
     # Relacionamentos

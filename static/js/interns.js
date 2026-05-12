@@ -26,7 +26,7 @@ function renderTable() {
     tbody.innerHTML = '';
     
     if (internsList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhum estagiário cadastrado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhum estagiário cadastrado.</td></tr>';
         return;
     }
 
@@ -51,6 +51,7 @@ function renderTable() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${i.name}</strong></td>
+            <td>${i.contact || '<span class="text-muted">-</span>'}</td>
             <td>${badge}</td>
             <td>
                 <button class="btn btn-secondary" onclick="editIntern('${i.id}')">
@@ -75,11 +76,15 @@ function openInternModal(intern = null) {
         title.innerText = 'Editar Estagiário';
         document.getElementById('internId').value = intern.id;
         document.getElementById('internName').value = intern.name;
+        document.getElementById('internContact').value = intern.contact || '';
+        document.getElementById('internNotes').value = intern.notes || '';
         document.getElementById('internActive').checked = intern.is_active;
     } else {
         title.innerText = 'Novo Estagiário';
         form.reset();
         document.getElementById('internId').value = '';
+        document.getElementById('internContact').value = '';
+        document.getElementById('internNotes').value = '';
         document.getElementById('internActive').checked = true;
     }
     
@@ -97,6 +102,8 @@ async function saveIntern(e) {
     const id = document.getElementById('internId').value;
     const data = {
         name: document.getElementById('internName').value,
+        contact: document.getElementById('internContact').value || null,
+        notes: document.getElementById('internNotes').value || null,
         is_active: document.getElementById('internActive').checked
     };
     
