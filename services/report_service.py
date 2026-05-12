@@ -4,7 +4,7 @@ from sqlalchemy import func, case
 from datetime import datetime
 from models.appointment import Appointment
 from models.patient import Patient
-from schemas.report import AbsenceReportItem, WeeklySummaryItem, AttendanceReport
+from schemas.report import AbsenceReportItem, WeeklySummaryItem, AttendanceReport, PatientAttendanceReport
 
 def get_absences_report(db: Session, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> list[AbsenceReportItem]:
     query = db.query(
@@ -97,4 +97,27 @@ def get_attendance_report(db: Session, start_date: Optional[datetime] = None, en
         total_count=total_count,
         status_summary=status_summary,
         category_summary=category_summary
+    )
+
+def get_patient_attendance_report(db: Session, patient_id: str, year: int) -> PatientAttendanceReport:
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        return None
+        
+    # Agendamentos Realizados no ano selecionado para o paciente
+    appointments = db.query(Appointment).filter(
+        Appointment.patient_id == patient_id,
+        Appointment.status == "Realizado",
+        func.strftime('%Y', Appointment.start_time) == str(year)
+    ).all()
+    
+    monthly_counts = {m: 0 for m in range(1, 13)}
+    for appt in appointments:
+        month = appt.start_time.month
+        monthly_counts[month] += 1
+        
+    return PatientAttendanceReport(
+        patient_name=patient.name,
+        year=year,
+        monthly_counts=monthly_counts
     )

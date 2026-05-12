@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório por Paciente{% endblock %}
+{% block header_title %}Relatório de Atendimentos por Paciente{% endblock %}
+
+{% block content %}
+<div class="report-filters card">
+    <div class="d-flex align-center" style="gap: 20px; flex-wrap: wrap;">
+        <div class="form-group mb-0" style="flex: 1; min-width: 250px;">
+            <label>Paciente</label>
+            <select id="patientSelect" class="form-control">
+                <option value="">Selecione um paciente...</option>
+            </select>
+        </div>
+        <div class="form-group mb-0" style="width: 120px;">
+            <label>Ano</label>
+            <input type="number" id="reportYear" class="form-control" min="2020" max="2100">
+        </div>
+        <div class="form-group mb-0 d-flex align-end">
+            <button class="btn btn-primary" onclick="loadPatientReport()">
+                <i class="fa-solid fa-chart-line"></i> Gerar Relatório
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="reportResult" style="display: none; margin-top: 20px;">
+    <div class="card">
+        <div class="d-flex justify-between align-center mb-4">
+            <h3 id="resultTitle">Atendimentos em 2025</h3>
+            <div class="badge badge-primary" id="totalYearly">Total: 0</div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mês</th>
+                        <th>Quantidade de Atendimentos Realizados</th>
+                        <th style="width: 150px;">Progresso</th>
+                    </tr>
+                </thead>
+                <tbody id="monthly-table-body">
+                    <!-- Preenchido via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="noDataMessage" class="card" style="display: none; margin-top: 20px; text-align: center; padding: 40px;">
+    <i class="fa-solid fa-folder-open" style="font-size: 3em; opacity: 0.2; margin-bottom: 15px; display: block;"></i>
+    <p style="color: var(--text-muted);">Nenhum atendimento realizado encontrado para este paciente no ano selecionado.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/reports_patient_attendance.js?v=1.0"></script>
+{% endblock %}

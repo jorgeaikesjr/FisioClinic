@@ -47,7 +47,10 @@
                 <i class="fa-solid fa-chart-pie"></i> Relatório de Fila
             </a>
             <a href="/reports/attendance" class="nav-item {% if request.url.path == '/reports/attendance' %}active{% endif %}">
-                <i class="fa-solid fa-clipboard-list"></i> Relatório de Atendimentos
+                <i class="fa-solid fa-clipboard-list"></i> Atendimentos Geral
+            </a>
+            <a href="/reports/patient-attendance" class="nav-item {% if request.url.path == '/reports/patient-attendance' %}active{% endif %}">
+                <i class="fa-solid fa-user-check"></i> Atendimentos por Paciente
             </a>
             {% endif %}
         </nav>

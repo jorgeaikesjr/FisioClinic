@@ -45,3 +45,7 @@ async def reports_waiting_list_page(request: Request):
 @router.get("/reports/attendance", response_class=HTMLResponse)
 async def reports_attendance_page(request: Request):
     return templates.TemplateResponse("reports_attendance.html", {"request": request})
+
+@router.get("/reports/patient-attendance", response_class=HTMLResponse)
+async def reports_patient_attendance_page(request: Request):
+    return templates.TemplateResponse("reports_patient_attendance.html", {"request": request})

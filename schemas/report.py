@@ -23,3 +23,8 @@ class AttendanceReport(BaseModel):
     total_count: int
     status_summary: dict[str, int]
     category_summary: dict[str, dict[str, int]] # Categoria -> { Status -> Count }
+    
+class PatientAttendanceReport(BaseModel):
+    patient_name: str
+    year: int
+    monthly_counts: dict[int, int]

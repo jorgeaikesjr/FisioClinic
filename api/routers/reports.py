@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from api.dependencies import get_db
-from schemas.report import AbsenceReportItem, WeeklySummaryItem, AttendanceReport
+from schemas.report import AbsenceReportItem, WeeklySummaryItem, AttendanceReport, PatientAttendanceReport
 from services import report_service
 
 router = APIRouter()
@@ -34,3 +34,12 @@ def read_attendance_report(
     db: Session = Depends(get_db)
 ):
     return report_service.get_attendance_report(db=db, start_date=start_date, end_date=end_date)
+
+
+@router.get("/patient-attendance", response_model=PatientAttendanceReport)
+def read_patient_attendance_report(
+    patient_id: str,
+    year: int,
+    db: Session = Depends(get_db)
+):
+    return report_service.get_patient_attendance_report(db=db, patient_id=patient_id, year=year)
