@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, case
 from datetime import datetime
 from models.appointment import Appointment
 from models.patient import Patient
@@ -11,9 +11,11 @@ def get_absences_report(db: Session, start_date: Optional[datetime] = None, end_
         Patient.id.label("patient_id"),
         Patient.name.label("patient_name"),
         Patient.contact.label("patient_contact"),
-        func.count(Appointment.id).label("absences_count")
+        func.count(Appointment.id).label("absences_count"),
+        func.sum(case((Appointment.status == "Falta Justificada", 1), else_=0)).label("justified_absences"),
+        func.sum(case((Appointment.status == "Faltou", 1), else_=0)).label("unjustified_absences")
     ).join(Appointment, Patient.id == Appointment.patient_id) \
-     .filter(Appointment.status == "Faltou")
+     .filter(Appointment.status.in_(["Faltou", "Falta Justificada"]))
      
     if start_date:
         query = query.filter(Appointment.start_time >= start_date)
@@ -30,7 +32,9 @@ def get_absences_report(db: Session, start_date: Optional[datetime] = None, end_
             patient_id=str(row.patient_id),
             patient_name=row.patient_name,
             patient_contact=row.patient_contact,
-            absences_count=row.absences_count
+            absences_count=row.absences_count,
+            justified_absences=int(row.justified_absences or 0),
+            unjustified_absences=int(row.unjustified_absences or 0)
         ))
         
     return report

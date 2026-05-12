@@ -49,7 +49,9 @@
                 <tr>
                     <th style="cursor: pointer;" onclick="sortTable('patient_name')">Paciente <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
                     <th style="cursor: pointer;" onclick="sortTable('patient_contact')">Contato <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
-                    <th style="cursor: pointer;" onclick="sortTable('absences_count')">Quantidade de Faltas <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('absences_count')" title="Total de Faltas (Justificadas + Não Justificadas)">Total <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('unjustified_absences')">Não Justificadas <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('justified_absences')">Justificadas <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
                 </tr>
             </thead>
             <tbody id="reports-table-body">

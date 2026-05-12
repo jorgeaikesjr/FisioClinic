@@ -82,6 +82,7 @@ function initCalendar() {
                     if (e.status === 'Cancelado') className = 'event-cancelado';
                     if (e.status === 'Realizado') className = 'event-realizado';
                     if (e.status === 'Faltou') className = 'event-faltou';
+                    if (e.status === 'Falta Justificada') className = 'event-falta-justificada';
                     
                     return {
                         id: e.id,

@@ -7,6 +7,8 @@ class AbsenceReportItem(BaseModel):
     patient_name: str
     patient_contact: str
     absences_count: int
+    justified_absences: int
+    unjustified_absences: int
 
 class WeeklySummaryItem(BaseModel):
     appointment_id: str

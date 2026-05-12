@@ -131,7 +131,7 @@ function renderTable() {
     tbody.innerHTML = '';
     
     if (absencesList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhuma falta registrada neste período. Parabéns!</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Nenhuma falta registrada neste período. Parabéns!</td></tr>';
         return;
     }
 
@@ -153,7 +153,9 @@ function renderTable() {
         tr.innerHTML = `
             <td><strong>${item.patient_name}</strong></td>
             <td>${item.patient_contact}</td>
-            <td><span class="badge badge-gray" style="background-color: #e53e3e; color: white;">${item.absences_count} Falta(s)</span></td>
+            <td><span class="badge" style="background-color: var(--secondary); color: white; min-width: 40px; display: inline-block;">${item.absences_count}</span></td>
+            <td><span class="badge" style="background-color: #e53e3e; color: white; min-width: 40px; display: inline-block;">${item.unjustified_absences}</span></td>
+            <td><span class="badge" style="background-color: #f6ad55; color: white; min-width: 40px; display: inline-block;">${item.justified_absences}</span></td>
         `;
         tbody.appendChild(tr);
     });
