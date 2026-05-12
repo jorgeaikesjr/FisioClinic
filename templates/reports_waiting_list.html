@@ -51,7 +51,9 @@ async function loadWaitingListReport() {
     const summary = {
         "Neuro Adulto": 0,
         "Neuro Infantil": 0,
-        "Ortopedia": 0
+        "Ortopedia": 0,
+        "Cardio": 0,
+        "Saúde Coletiva": 0
     };
 
     if (!list || list.length === 0) {
@@ -148,6 +150,8 @@ function renderSummaryCards(summary) {
         "Neuro Adulto": "#3498db",
         "Neuro Infantil": "#9b59b6",
         "Ortopedia": "#e67e22",
+        "Cardio": "#e74c3c",
+        "Saúde Coletiva": "#27ae60",
         "Total": "#2c3e50"
     };
 

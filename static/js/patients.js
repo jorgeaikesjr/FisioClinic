@@ -54,9 +54,15 @@ function renderTable() {
             ? '<span class="badge badge-success">Ativo</span>'
             : '<span class="badge badge-gray">Inativo</span>';
             
+        const age = p.birth_date ? calculateAge(p.birth_date) : '-';
+        const sexMap = { 'M': 'Masc', 'F': 'Fem', 'O': 'Outro' };
+        const sexStr = p.sex ? (sexMap[p.sex] || p.sex) : '-';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${p.name}</strong></td>
+            <td>${sexStr}</td>
+            <td>${age}</td>
             <td>${p.contact}</td>
             <td>${p.guardian ? p.guardian : '<span class="text-muted">-</span>'}</td>
             <td>${badge}</td>
@@ -75,6 +81,17 @@ function renderTable() {
     });
 }
 
+function calculateAge(birthDate) {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 function openPatientModal(patient = null) {
     const title = document.getElementById('modalTitle');
     const form = document.getElementById('patientForm');
@@ -84,6 +101,8 @@ function openPatientModal(patient = null) {
         document.getElementById('patientId').value = patient.id;
         document.getElementById('patientName').value = patient.name;
         document.getElementById('patientContact').value = patient.contact;
+        document.getElementById('patientSex').value = patient.sex || '';
+        document.getElementById('patientBirthDate').value = patient.birth_date || '';
         document.getElementById('patientGuardian').value = patient.guardian || '';
         document.getElementById('patientAnamnesis').value = patient.anamnesis || '';
         document.getElementById('patientActive').checked = patient.is_active !== false;
@@ -91,6 +110,8 @@ function openPatientModal(patient = null) {
         title.innerText = 'Novo Paciente';
         form.reset();
         document.getElementById('patientId').value = '';
+        document.getElementById('patientSex').value = '';
+        document.getElementById('patientBirthDate').value = '';
         document.getElementById('patientActive').checked = true;
     }
     
@@ -109,6 +130,8 @@ async function savePatient(e) {
     const data = {
         name: document.getElementById('patientName').value,
         contact: document.getElementById('patientContact').value,
+        sex: document.getElementById('patientSex').value || null,
+        birth_date: document.getElementById('patientBirthDate').value || null,
         guardian: document.getElementById('patientGuardian').value || null,
         anamnesis: document.getElementById('patientAnamnesis').value || null,
         is_active: document.getElementById('patientActive').checked

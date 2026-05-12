@@ -3,7 +3,7 @@ from typing import Optional, Literal
 from datetime import datetime
 from schemas.patient import PatientResponse
 
-CategoryType = Literal["Neuro Adulto", "Neuro Infantil", "Ortopedia"]
+CategoryType = Literal["Neuro Adulto", "Neuro Infantil", "Ortopedia", "Cardio", "Saúde Coletiva"]
 
 class WaitingListBase(BaseModel):
     patient_id: str = Field(..., description="ID do paciente (já cadastrado)")

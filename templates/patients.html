@@ -17,6 +17,8 @@
             <thead>
                 <tr>
                     <th style="cursor: pointer;" onclick="sortTable('name')">Nome <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('sex')">Sexo <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
+                    <th>Idade</th>
                     <th style="cursor: pointer;" onclick="sortTable('contact')">Contato <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
                     <th style="cursor: pointer;" onclick="sortTable('guardian')">Responsável <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
                     <th style="cursor: pointer;" onclick="sortTable('is_active')">Status <i class="fa-solid fa-sort" style="font-size: 0.8em; opacity: 0.5;"></i></th>
@@ -43,6 +45,21 @@
                 <div class="form-group">
                     <label>Nome Completo *</label>
                     <input type="text" id="patientName" class="form-control" required>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Sexo</label>
+                        <select id="patientSex" class="form-control">
+                            <option value="">Selecione...</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
+                            <option value="O">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="patientBirthDate" class="form-control">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Contato (Telefone/Email) *</label>

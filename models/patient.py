@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Text, Boolean
+from sqlalchemy import Column, String, Text, Boolean, Date
 from sqlalchemy.orm import relationship
 from models.base import Base
 
@@ -15,6 +15,8 @@ class Patient(Base):
     
     # Campos opcionais
     guardian = Column(String, nullable=True)
+    sex = Column(String, nullable=True)
+    birth_date = Column(Date, nullable=True)
     anamnesis = Column(Text, nullable=True)
     
     # Controle de status (Soft Delete)
