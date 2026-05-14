@@ -14,10 +14,14 @@ import models.waiting_list
 import models.fitting_list
 
 # Configuração do engine
-# O parâmetro check_same_thread=False é necessário apenas para o SQLite.
+if not settings.DATABASE_URL:
+    raise ValueError("A variável DATABASE_URL está vazia ou não foi configurada!")
+
 connect_args = {}
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args["check_same_thread"] = False
+
+print(f"Conectando ao banco de dados: {settings.DATABASE_URL.split('://')[0]}://...")
 
 engine = create_engine(
     settings.DATABASE_URL, connect_args=connect_args

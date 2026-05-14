@@ -15,7 +15,12 @@ class Settings(BaseSettings):
 
     def __init__(self, **values):
         super().__init__(**values)
-        if self.DATABASE_URL.startswith("postgres://"):
-            self.DATABASE_URL = self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        # Limpa espaços e aspas que podem vir do ambiente (Vercel/Docker)
+        if self.DATABASE_URL:
+            self.DATABASE_URL = self.DATABASE_URL.strip().strip("'").strip('"')
+            
+            # Corrige o prefixo do Supabase/Postgres
+            if self.DATABASE_URL.startswith("postgres://"):
+                self.DATABASE_URL = self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 settings = Settings()
