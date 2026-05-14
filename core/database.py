@@ -27,4 +27,9 @@ def init_db():
     Cria as tabelas no banco de dados SQLite caso elas não existam.
     Isso não apaga ou altera tabelas já existentes (seguro para inicialização local).
     """
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Erro ao inicializar banco de dados: {e}")
+        # Em ambientes read-only (como Vercel) sem DATABASE_URL externa, 
+        # isso pode falhar. Não travamos o app, mas logamos o erro.

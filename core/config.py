@@ -6,10 +6,11 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./fisioclinic.db"
     
     # Define o tipo de clínica: "escola" ou "particular"
-    # Para alterar, edite o arquivo .env na raiz do projeto
     CLINIC_TYPE: Literal["escola", "particular"] = "escola"
     
-    class Config:
-        env_file = ".env"
+    model_config = {
+        "env_file": ".env",
+        "extra": "ignore"
+    }
 
 settings = Settings()

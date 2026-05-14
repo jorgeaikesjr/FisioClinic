@@ -11,3 +11,4 @@ pytest-cov
 pandas
 xlrd
 openpyxl
+psycopg2-binary
