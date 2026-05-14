@@ -13,10 +13,14 @@ import models.appointment
 import models.waiting_list
 import models.fitting_list
 
-# Configuração do engine do SQLite
-# O parâmetro check_same_thread=False é necessário apenas para o SQLite no FastAPI.
+# Configuração do engine
+# O parâmetro check_same_thread=False é necessário apenas para o SQLite.
+connect_args = {}
+if settings.DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+
 engine = create_engine(
-    settings.DATABASE_URL, connect_args={"check_same_thread": False}
+    settings.DATABASE_URL, connect_args=connect_args
 )
 
 # Criação da fábrica de sessões (SessionLocal)
