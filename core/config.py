@@ -15,6 +15,8 @@ class Settings(BaseSettings):
 
     def __init__(self, **values):
         import os
+        from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
+        
         # Prioridade para DATABASE_URL, depois variáveis automáticas do Vercel/Supabase
         db_url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL") or os.getenv("POSTGRES_PRISMA_URL")
         if db_url:
@@ -22,12 +24,23 @@ class Settings(BaseSettings):
             
         super().__init__(**values)
         
-        # Limpa espaços e aspas que podem vir do ambiente (Vercel/Docker)
         if self.DATABASE_URL:
+            # 1. Limpa espaços e aspas
             self.DATABASE_URL = self.DATABASE_URL.strip().strip("'").strip('"')
             
-            # Corrige o prefixo do Supabase/Postgres (SQLAlchemy exige postgresql://)
+            # 2. Corrige o prefixo (postgres -> postgresql)
             if self.DATABASE_URL.startswith("postgres://"):
                 self.DATABASE_URL = self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+            
+            # 3. Remove parâmetros inválidos (como 'supa' do Vercel) que travam o psycopg2
+            try:
+                u = urlparse(self.DATABASE_URL)
+                query = parse_qsl(u.query)
+                # Filtra apenas parâmetros conhecidos ou remove os explicitamente problemáticos
+                query = [item for item in query if item[0] not in ['supa', 'pgbouncer']]
+                new_query = urlencode(query)
+                self.DATABASE_URL = urlunparse(u._replace(query=new_query))
+            except Exception as e:
+                print(f"Aviso: Erro ao limpar URL do banco: {e}")
 
 settings = Settings()
