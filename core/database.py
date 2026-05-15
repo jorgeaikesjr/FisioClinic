@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 from core.config import settings
 
 # Importação da base declarativa
@@ -18,14 +19,21 @@ if not settings.DATABASE_URL:
     raise ValueError("A variável DATABASE_URL está vazia ou não foi configurada!")
 
 connect_args = {}
+engine_kwargs = {}
+
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args["check_same_thread"] = False
+elif settings.DATABASE_URL.startswith("postgresql"):
+    # No Vercel (serverless) usando Supabase Pooler (PgBouncer porta 6543 em Transaction Mode),
+    # é essencial usar NullPool para evitar que o SQLAlchemy retenha conexões inválidas/inconsistentes.
+    engine_kwargs["poolclass"] = NullPool
 
 print(f"Conectando ao banco de dados: {settings.DATABASE_URL.split('://')[0]}://...")
 
 engine = create_engine(
-    settings.DATABASE_URL, connect_args=connect_args
+    settings.DATABASE_URL, connect_args=connect_args, **engine_kwargs
 )
+
 
 # Criação da fábrica de sessões (SessionLocal)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
