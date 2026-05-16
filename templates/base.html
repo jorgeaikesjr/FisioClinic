@@ -70,6 +70,9 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="top-header">
+            <button id="mobileMenuBtn" class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
             <h2 class="page-title">{% block header_title %}Visão Geral{% endblock %}</h2>
         </header>
         
@@ -78,8 +81,19 @@
         </div>
     </main>
 
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
     <!-- Common API Utilities JS -->
     <script>
+        // Sidebar Toggle for Mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
         // Global utility to fetch API
         async function apiRequest(endpoint, method = 'GET', body = null) {
             const options = {

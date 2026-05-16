@@ -282,3 +282,76 @@ textarea.form-control {
 .badge-danger { background: #fee2e2; color: #991b1b; }
 .badge-primary { background: #dbeafe; color: #1e40af; }
 .badge-gray { background: #f1f5f9; color: #475569; }
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.5);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .top-header {
+        padding: 0 15px;
+    }
+
+    .content-wrapper {
+        padding: 15px;
+    }
+
+    .card {
+        padding: 15px;
+    }
+
+    .modal {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    /* Make buttons full width on small screens if needed, or adjust padding */
+    .table-container {
+        margin-top: 15px;
+    }
+}
