@@ -7,15 +7,9 @@ from core.database import SessionLocal
 from core.auth import require_admin
 from core.security import get_password_hash
 from models.user import User
+from api.dependencies import get_db
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 class UserCreate(BaseModel):
     username: str

@@ -5,19 +5,13 @@ from core.config import settings
 from core.database import SessionLocal
 from core.security import ALGORITHM
 from models.user import User
+from api.dependencies import get_db
 
 class NotAuthenticatedException(Exception):
     pass
 
 class MustChangePasswordException(Exception):
     pass
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     token = request.cookies.get("access_token")

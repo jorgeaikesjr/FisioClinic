@@ -5,15 +5,9 @@ from core.database import SessionLocal
 from core.security import verify_password, create_access_token
 from core.auth import get_current_user
 from models.user import User
+from api.dependencies import get_db
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 class LoginRequest(BaseModel):
     username: str
