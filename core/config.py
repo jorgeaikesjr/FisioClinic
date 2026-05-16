@@ -37,14 +37,15 @@ class Settings(BaseSettings):
                 self.DATABASE_URL = self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
             
             # 3. Remove parâmetros inválidos (como 'supa' do Vercel) que travam o psycopg2
-            try:
-                u = urlparse(self.DATABASE_URL)
-                query = parse_qsl(u.query)
-                # Filtra apenas parâmetros conhecidos ou remove os explicitamente problemáticos
-                query = [item for item in query if item[0] not in ['supa', 'pgbouncer']]
-                new_query = urlencode(query)
-                self.DATABASE_URL = urlunparse(u._replace(query=new_query))
-            except Exception as e:
-                print(f"Aviso: Erro ao limpar URL do banco: {e}")
+            if self.DATABASE_URL.startswith("postgresql://"):
+                try:
+                    u = urlparse(self.DATABASE_URL)
+                    query = parse_qsl(u.query)
+                    # Filtra apenas parâmetros conhecidos ou remove os explicitamente problemáticos
+                    query = [item for item in query if item[0] not in ['supa', 'pgbouncer']]
+                    new_query = urlencode(query)
+                    self.DATABASE_URL = urlunparse(u._replace(query=new_query))
+                except Exception as e:
+                    print(f"Aviso: Erro ao limpar URL do banco: {e}")
 
 settings = Settings()
