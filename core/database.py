@@ -65,6 +65,15 @@ def init_db():
                     conn.execute(text("ALTER TABLE users ADD COLUMN must_change_password BOOLEAN DEFAULT 1"))
             except Exception:
                 pass # Coluna já existe
+                
+            # Força que o usuário 'admin' padrão seja admin (importante para bancos que foram migrados e ficaram com is_admin=False)
+            try:
+                if settings.DATABASE_URL.startswith("postgresql"):
+                    conn.execute(text("UPDATE users SET is_admin = TRUE WHERE username = 'admin'"))
+                else:
+                    conn.execute(text("UPDATE users SET is_admin = 1 WHERE username = 'admin'"))
+            except Exception as e:
+                print(f"Erro ao atualizar privilégios do admin: {e}")
 
     except Exception as e:
         print(f"Erro ao inicializar banco de dados: {e}")
