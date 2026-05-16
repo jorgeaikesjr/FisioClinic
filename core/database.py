@@ -13,6 +13,7 @@ import models.intern
 import models.appointment
 import models.waiting_list
 import models.fitting_list
+import models.user
 
 # Configuração do engine
 if not settings.DATABASE_URL:

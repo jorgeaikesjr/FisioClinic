@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     # Define o tipo de clínica: "escola" ou "particular"
     CLINIC_TYPE: Literal["escola", "particular"] = "escola"
     
+    # Segurança
+    SECRET_KEY: str = "3f8e91a2b5c6d7e8f90a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    
     model_config = {
         "env_file": ".env",
         "extra": "ignore"
