@@ -46,6 +46,26 @@ def init_db():
     """
     try:
         Base.metadata.create_all(bind=engine)
+        
+        # Migração manual simples para adicionar colunas em tabelas existentes
+        from sqlalchemy import text
+        with engine.begin() as conn:
+            try:
+                if settings.DATABASE_URL.startswith("postgresql"):
+                    conn.execute(text("ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT FALSE"))
+                else:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0"))
+            except Exception:
+                pass # Coluna já existe
+                
+            try:
+                if settings.DATABASE_URL.startswith("postgresql"):
+                    conn.execute(text("ALTER TABLE users ADD COLUMN must_change_password BOOLEAN DEFAULT TRUE"))
+                else:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN must_change_password BOOLEAN DEFAULT 1"))
+            except Exception:
+                pass # Coluna já existe
+
     except Exception as e:
         print(f"Erro ao inicializar banco de dados: {e}")
         # Em ambientes read-only (como Vercel) sem DATABASE_URL externa, 

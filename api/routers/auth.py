@@ -18,6 +18,10 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+class ChangePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
+
 @router.post("/login")
 def login(login_data: LoginRequest, response: Response, db: Session = Depends(get_db)):
     # Garante que o usuário admin exista (especialmente importante no Vercel onde o lifespan pode não rodar)
@@ -25,7 +29,9 @@ def login(login_data: LoginRequest, response: Response, db: Session = Depends(ge
         from core.security import get_password_hash
         admin_user = User(
             username="admin",
-            hashed_password=get_password_hash("admin123")
+            hashed_password=get_password_hash("admin123"),
+            is_admin=True,
+            must_change_password=False
         )
         db.add(admin_user)
         db.commit()
@@ -49,7 +55,26 @@ def login(login_data: LoginRequest, response: Response, db: Session = Depends(ge
         samesite="lax",
         secure=False, # Como não temos HTTPS local garantido, manter False. Em prod no Vercel (HTTPS), o browser aceita.
     )
-    return {"message": "Login realizado com sucesso"}
+    return {
+        "message": "Login realizado com sucesso",
+        "must_change_password": user.must_change_password
+    }
+
+@router.post("/change-password")
+def change_password(data: ChangePasswordRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    from core.security import get_password_hash
+    
+    if not verify_password(data.old_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Senha atual incorreta"
+        )
+        
+    current_user.hashed_password = get_password_hash(data.new_password)
+    current_user.must_change_password = False
+    db.commit()
+    
+    return {"message": "Senha atualizada com sucesso"}
 
 @router.post("/logout")
 def logout(response: Response):
