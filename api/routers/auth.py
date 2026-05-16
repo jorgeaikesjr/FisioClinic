@@ -20,6 +20,16 @@ class LoginRequest(BaseModel):
 
 @router.post("/login")
 def login(login_data: LoginRequest, response: Response, db: Session = Depends(get_db)):
+    # Garante que o usuário admin exista (especialmente importante no Vercel onde o lifespan pode não rodar)
+    if db.query(User).count() == 0:
+        from core.security import get_password_hash
+        admin_user = User(
+            username="admin",
+            hashed_password=get_password_hash("admin123")
+        )
+        db.add(admin_user)
+        db.commit()
+
     user = db.query(User).filter(User.username == login_data.username).first()
     if not user or not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
