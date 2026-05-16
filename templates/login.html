@@ -141,7 +141,12 @@
                 });
                 
                 if (response.ok) {
-                    window.location.href = '/';
+                    const data = await response.json();
+                    if (data.must_change_password) {
+                        window.location.href = '/change-password';
+                    } else {
+                        window.location.href = '/';
+                    }
                 } else {
                     const data = await response.json();
                     errorMsg.textContent = data.detail || 'Usuário ou senha incorretos.';

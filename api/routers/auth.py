@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from core.database import SessionLocal
 from core.security import verify_password, create_access_token
+from core.auth import get_current_user
 from models.user import User
 
 router = APIRouter()
