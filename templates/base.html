@@ -52,6 +52,8 @@
             <a href="/reports/patient-attendance" class="nav-item {% if request.url.path == '/reports/patient-attendance' %}active{% endif %}">
                 <i class="fa-solid fa-user-check"></i> Atendimentos por Paciente
             </a>
+            {% endif %}
+            
             {% if current_user and current_user.is_admin %}
             <a href="/system-users" class="nav-item {% if request.url.path == '/system-users' %}active{% endif %}" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
                 <i class="fa-solid fa-user-shield"></i> Usuários
