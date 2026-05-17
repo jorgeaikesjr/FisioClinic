@@ -63,9 +63,9 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Estagiário *</label>
+                    <label>{% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissional{% else %}Estagiário{% endif %} *</label>
                     <select id="selectIntern" class="form-control" required>
-                        <option value="">Selecione um estagiário...</option>
+                        <option value="">Selecione um {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}profissional{% else %}estagiário{% endif %}...</option>
                     </select>
                 </div>
 

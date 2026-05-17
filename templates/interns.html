@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Estagiários{% endblock %}
-{% block header_title %}Gestão de Estagiários{% endblock %}
+{% block title %}{% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissionais{% else %}Estagiários{% endif %}{% endblock %}
+{% block header_title %}Gestão de {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissionais{% else %}Estagiários{% endif %}{% endblock %}
 
 {% block content %}
-<div class="card">
+<div class="card" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
     <div class="d-flex justify-between align-center">
-        <h3>Lista de Estagiários</h3>
+        <h3>Lista de {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissionais{% else %}Estagiários{% endif %}</h3>
         <button class="btn btn-primary" onclick="openInternModal()">
-            <i class="fa-solid fa-plus"></i> Novo Estagiário
+            <i class="fa-solid fa-plus"></i> Novo {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissional{% else %}Estagiário{% endif %}
         </button>
     </div>
     
-    <div class="table-container">
+    <div class="table-container" style="flex: 1; overflow-y: auto;">
         <table>
             <thead>
                 <tr>
@@ -33,7 +33,7 @@
 <div class="modal-overlay" id="internModal">
     <div class="modal">
         <div class="modal-header">
-            <h3 id="modalTitle">Novo Estagiário</h3>
+            <h3 id="modalTitle">Novo {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissional{% else %}Estagiário{% endif %}</h3>
             <i class="fa-solid fa-xmark modal-close" onclick="closeModal('internModal')"></i>
         </div>
         <form id="internForm" onsubmit="saveIntern(event)">
@@ -60,7 +60,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('internModal')">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Salvar Estagiário</button>
+                <button type="submit" class="btn btn-primary">Salvar {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissional{% else %}Estagiário{% endif %}</button>
             </div>
         </form>
     </div>

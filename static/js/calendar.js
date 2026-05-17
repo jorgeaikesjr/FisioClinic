@@ -67,6 +67,7 @@ function initCalendar() {
         },
         slotMinTime: '07:00:00', // Clínica abre às 7h
         slotMaxTime: '23:00:00', // Clínica fecha às 23h
+        height: '100%', // Para preencher a tela no mobile
         allDaySlot: false,
         selectable: true,
         editable: true,
@@ -170,16 +171,14 @@ function openAppointmentModal(appt = null, start = null, end = null) {
 
         // Garantir que o paciente atual apareça na lista mesmo se estiver inativo
         if (!Array.from(pSelect.options).some(opt => opt.value === appt.patient_id)) {
-            // Busca o nome do paciente no objeto retornado pelo GET /appointments/{id} 
-            // assumindo que o backend retornou o objeto aninhado ou temos os dados.
-            // No náutico, appt.patient e appt.intern devem estar lá por causa do joinedload no service.
             const pName = appt.patient ? appt.patient.name : 'Paciente Inativo';
             pSelect.options.add(new Option(`${pName} (Inativo)`, appt.patient_id));
         }
         
         // Garantir que o estagiário atual apareça na lista mesmo se estiver inativo
         if (!Array.from(iSelect.options).some(opt => opt.value === appt.intern_id)) {
-            const iName = appt.intern ? appt.intern.name : 'Estagiário Inativo';
+            const labelInactive = isPrivateClinic ? 'Profissional Inativo' : 'Estagiário Inativo';
+            const iName = appt.intern ? appt.intern.name : labelInactive;
             iSelect.options.add(new Option(`${iName} (Inativo)`, appt.intern_id));
         }
 
@@ -209,6 +208,10 @@ function openAppointmentModal(appt = null, start = null, end = null) {
         title.innerText = 'Novo Agendamento';
         form.reset();
         document.getElementById('appointmentId').value = '';
+        
+        if (interns.length === 1) {
+            document.getElementById('selectIntern').value = interns[0].id;
+        }
         
         // Pega data default ou do clique no calendário
         const s = start || new Date();

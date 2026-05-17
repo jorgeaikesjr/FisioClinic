@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +11,9 @@
     <!-- Extra head elements -->
     {% block head %}{% endblock %}
 </head>
+
 <body>
-    
+
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
@@ -19,20 +21,23 @@
             FisioClinic
         </div>
         <nav class="sidebar-nav">
-            <a href="/calendar" class="nav-item {% if request.url.path == '/calendar' or request.url.path == '/' %}active{% endif %}">
-                <i class="fa-regular fa-calendar"></i> Calendário
+            <a href="/calendar"
+                class="nav-item {% if request.url.path == '/calendar' or request.url.path == '/' %}active{% endif %}">
+                <i class="fa-regular fa-calendar"></i> Agenda
             </a>
             <a href="/patients" class="nav-item {% if request.url.path == '/patients' %}active{% endif %}">
                 <i class="fa-solid fa-users"></i> Pacientes
             </a>
             <a href="/interns" class="nav-item {% if request.url.path == '/interns' %}active{% endif %}">
-                <i class="fa-solid fa-user-doctor"></i> Estagiários
+                <i class="fa-solid fa-user-doctor"></i> {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissionais{% else %}Estagiários{% endif %}
             </a>
-            <a href="/reports/absences" class="nav-item {% if request.url.path == '/reports/absences' %}active{% endif %}">
+            <a href="/reports/absences"
+                class="nav-item {% if request.url.path == '/reports/absences' %}active{% endif %}">
                 <i class="fa-solid fa-chart-column"></i> Relatório de Faltas
             </a>
             {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}
-            <a href="/reports/weekly-summary" class="nav-item {% if request.url.path == '/reports/weekly-summary' %}active{% endif %}">
+            <a href="/reports/weekly-summary"
+                class="nav-item {% if request.url.path == '/reports/weekly-summary' %}active{% endif %}">
                 <i class="fa-solid fa-receipt"></i> Resumo Semanal
             </a>
             <a href="/fitting-list" class="nav-item {% if request.url.path == '/fitting-list' %}active{% endif %}">
@@ -43,23 +48,27 @@
             <a href="/waiting-list" class="nav-item {% if request.url.path == '/waiting-list' %}active{% endif %}">
                 <i class="fa-solid fa-list-ol"></i> Fila de Espera
             </a>
-            <a href="/reports/waiting-list" class="nav-item {% if request.url.path == '/reports/waiting-list' %}active{% endif %}">
+            <a href="/reports/waiting-list"
+                class="nav-item {% if request.url.path == '/reports/waiting-list' %}active{% endif %}">
                 <i class="fa-solid fa-chart-pie"></i> Relatório de Fila
             </a>
-            <a href="/reports/attendance" class="nav-item {% if request.url.path == '/reports/attendance' %}active{% endif %}">
+            <a href="/reports/attendance"
+                class="nav-item {% if request.url.path == '/reports/attendance' %}active{% endif %}">
                 <i class="fa-solid fa-clipboard-list"></i> Atendimentos Geral
             </a>
-            <a href="/reports/patient-attendance" class="nav-item {% if request.url.path == '/reports/patient-attendance' %}active{% endif %}">
+            <a href="/reports/patient-attendance"
+                class="nav-item {% if request.url.path == '/reports/patient-attendance' %}active{% endif %}">
                 <i class="fa-solid fa-user-check"></i> Atendimentos por Paciente
             </a>
             {% endif %}
-            
+
             {% if current_user and current_user.is_admin %}
-            <a href="/system-users" class="nav-item {% if request.url.path == '/system-users' %}active{% endif %}" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            <a href="/system-users" class="nav-item {% if request.url.path == '/system-users' %}active{% endif %}"
+                style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
                 <i class="fa-solid fa-user-shield"></i> Usuários
             </a>
             {% endif %}
-            
+
             <div style="flex-grow: 1;"></div>
             <a href="#" onclick="logout()" class="nav-item" style="color: #ef4444; margin-top: auto;">
                 <i class="fa-solid fa-right-from-bracket"></i> Sair
@@ -75,7 +84,7 @@
             </button>
             <h2 class="page-title">{% block header_title %}Visão Geral{% endblock %}</h2>
         </header>
-        
+
         <div class="content-wrapper">
             {% block content %}{% endblock %}
         </div>
@@ -101,11 +110,11 @@
                 headers: { 'Content-Type': 'application/json' }
             };
             if (body) options.body = JSON.stringify(body);
-            
+
             try {
                 const response = await fetch(`/api/v1${endpoint}`, options);
                 if (!response.ok) {
-                    const errData = await response.json().catch(()=>({}));
+                    const errData = await response.json().catch(() => ({}));
                     throw new Error(errData.detail || 'Erro na requisição');
                 }
                 if (response.status !== 204) {
@@ -118,17 +127,17 @@
                 throw error;
             }
         }
-        
+
         function openModal(id) {
             document.getElementById(id).classList.add('active');
         }
-        
+
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
         }
-        
+
         async function logout() {
-            if(confirm("Deseja realmente sair?")) {
+            if (confirm("Deseja realmente sair?")) {
                 try {
                     await fetch('/api/v1/auth/logout', { method: 'POST' });
                     window.location.href = '/login';
@@ -138,8 +147,9 @@
             }
         }
     </script>
-    
+
     <!-- Page specific scripts -->
     {% block scripts %}{% endblock %}
 </body>
+
 </html>
