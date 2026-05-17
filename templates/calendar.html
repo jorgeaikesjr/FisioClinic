@@ -9,6 +9,12 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/locales/pt-br.global.min.js"></script>
 <style>
     /* Ajustes específicos do FullCalendar para encaixar no nosso CSS premium */
+    #calendar {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
     .fc {
         background-color: var(--surface);
         padding: 20px;
@@ -166,5 +172,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/calendar.js"></script>
+<script src="/static/js/calendar.js?v=1.2"></script>
 {% endblock %}

@@ -71,6 +71,8 @@ function initCalendar() {
         allDaySlot: false,
         selectable: true,
         editable: true,
+        longPressDelay: 100,
+        selectLongPressDelay: 100,
         
         // Carrega eventos da nossa API
         events: async function(info, successCallback, failureCallback) {
