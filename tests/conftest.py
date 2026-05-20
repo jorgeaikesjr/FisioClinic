@@ -17,6 +17,9 @@ from models.base import Base
 import models.patient      # noqa: F401
 import models.intern       # noqa: F401
 import models.appointment  # noqa: F401
+import models.user         # noqa: F401
+import models.waiting_list # noqa: F401
+import models.fitting_list # noqa: F401
 
 import core.database as db_module
 
@@ -49,6 +52,29 @@ def setup_database():
 @pytest.fixture()
 def client():
     from main import app
+    from core.auth import require_auth, require_admin, get_current_user
+    from models.user import User
+
+    mock_user = User(
+        id="test-admin-id",
+        username="admin",
+        is_admin=True,
+        must_change_password=False
+    )
+    app.dependency_overrides[require_auth] = lambda: mock_user
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    app.dependency_overrides[require_admin] = lambda: mock_user
+
+    with TestClient(app) as c:
+        yield c
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def unauthenticated_client():
+    from main import app
+    app.dependency_overrides.clear()
     with TestClient(app) as c:
         yield c
 
@@ -93,4 +119,7 @@ def appointment_payload(created_patient, created_intern):
 def created_appointment(client, appointment_payload):
     r = client.post("/api/v1/appointments/", json=appointment_payload)
     assert r.status_code == 201, r.text
-    return r.json()
+    res = r.json()
+    if isinstance(res, list):
+        return res[0]
+    return res

@@ -19,6 +19,8 @@ class TestCreateAppointment:
         r = client.post("/api/v1/appointments/", json=appointment_payload)
         assert r.status_code == 201
         body = r.json()
+        if isinstance(body, list):
+            body = body[0]
         assert body["patient_id"] == appointment_payload["patient_id"]
         assert body["intern_id"] == appointment_payload["intern_id"]
         assert body["status"] == "Agendado"
@@ -30,6 +32,8 @@ class TestCreateAppointment:
         r = client.post("/api/v1/appointments/", json=appointment_payload)
         assert r.status_code == 201
         body = r.json()
+        if isinstance(body, list):
+            body = body[0]
         assert body["payment_method"] == "Pix"
         assert body["amount_paid"] == 150.0
 
@@ -255,7 +259,8 @@ class TestUpdateAppointment:
         }
         r2 = client.post("/api/v1/appointments/", json=payload2)
         assert r2.status_code == 201
-        aid2 = r2.json()["id"]
+        res2 = r2.json()
+        aid2 = res2[0]["id"] if isinstance(res2, list) else res2["id"]
 
         # Tenta mover o segundo para cima do primeiro
         r = client.patch(f"/api/v1/appointments/{aid2}", json={

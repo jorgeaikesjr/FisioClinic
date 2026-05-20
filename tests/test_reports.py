@@ -59,7 +59,9 @@ class TestAbsencesReport:
             "start_time": "2026-06-10T09:00:00",
             "end_time": "2026-06-10T09:50:00",
         })
-        client.patch(f"/api/v1/appointments/{r.json()['id']}", json={"status": "Faltou"})
+        res = r.json()
+        aid = res[0]["id"] if isinstance(res, list) else res["id"]
+        client.patch(f"/api/v1/appointments/{aid}", json={"status": "Faltou"})
 
         # 2 faltas para o segundo paciente (precisa de 2 estagiários distintos)
         r2_intern = client.post("/api/v1/interns/", json={"name": "Outro Estagiário"})
@@ -75,7 +77,9 @@ class TestAbsencesReport:
                 "start_time": start,
                 "end_time": end,
             })
-            client.patch(f"/api/v1/appointments/{ra.json()['id']}", json={"status": "Faltou"})
+            res_a = ra.json()
+            aid_a = res_a[0]["id"] if isinstance(res_a, list) else res_a["id"]
+            client.patch(f"/api/v1/appointments/{aid_a}", json={"status": "Faltou"})
 
         r = client.get("/api/v1/reports/absences")
         data = r.json()
