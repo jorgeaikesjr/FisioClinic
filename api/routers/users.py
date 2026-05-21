@@ -1,29 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
 from typing import List
 
-from core.database import SessionLocal
 from core.auth import require_admin
 from core.security import get_password_hash
 from models.user import User
 from api.dependencies import get_db
+from schemas.user import UserCreate, UserResponse
 
 router = APIRouter()
-
-class UserCreate(BaseModel):
-    username: str
-    password: str
-    is_admin: bool = False
-
-class UserResponse(BaseModel):
-    id: str
-    username: str
-    is_admin: bool
-    must_change_password: bool
-
-    class Config:
-        orm_mode = True
 
 @router.get("/", response_model=List[UserResponse])
 def get_users(db: Session = Depends(get_db), current_admin: User = Depends(require_admin)):
