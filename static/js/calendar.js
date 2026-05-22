@@ -260,12 +260,14 @@ async function saveAppointment(e) {
     if (!id && document.getElementById('isRecurring').checked) {
         const days = Array.from(document.querySelectorAll('input[name="recurDays"]:checked')).map(cb => parseInt(cb.value));
         const weeks = parseInt(document.getElementById('recurWeeks').value);
+        const period = document.getElementById('recurrencePeriod').value;
         if (days.length === 0) {
             alert('Por favor, selecione pelo menos um dia da semana para a recorrência.');
             return;
         }
         data.recurrence_days = days;
         data.recurrence_weeks = weeks;
+        data.recurrence_period = period;
     }
     
     try {

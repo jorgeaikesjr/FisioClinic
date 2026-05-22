@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Literal
 from schemas.patient import PatientResponse
 from schemas.intern import InternResponse
 
@@ -16,6 +16,7 @@ class AppointmentCreate(AppointmentBase):
     amount_paid: Optional[float] = Field(None, description="Valor pago pelo paciente")
     recurrence_days: Optional[list[int]] = Field(None, description="Dias da semana para recorrência (0=Seg, 6=Dom)")
     recurrence_weeks: Optional[int] = Field(None, description="Número de semanas para a recorrência")
+    recurrence_period: Optional[Literal["weekly", "biweekly"]] = Field("weekly", description="Frequência da recorrência (semanal ou quinzenal)")
 
 class AppointmentUpdate(BaseModel):
     patient_id: Optional[str] = Field(None, description="ID do paciente")

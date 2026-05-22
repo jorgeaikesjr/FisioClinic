@@ -43,7 +43,10 @@ def create_appointment(db: Session, appointment_data: AppointmentCreate) -> list
         duration = base_end - base_start
         current_date = base_start.date()
 
-        for week in range(appointment_data.recurrence_weeks):
+        # Determinar o incremento de semanas de acordo com a periodicidade
+        step = 2 if appointment_data.recurrence_period == "biweekly" else 1
+
+        for week in range(0, appointment_data.recurrence_weeks, step):
             for day_idx in appointment_data.recurrence_days:
                 days_to_add = day_idx - current_date.weekday() + (week * 7)
                 target_date = current_date + timedelta(days=days_to_add)
@@ -64,7 +67,7 @@ def create_appointment(db: Session, appointment_data: AppointmentCreate) -> list
                 if has_conflict:
                     raise ValueError(f"Conflito de horário detectado no dia {target_start.strftime('%d/%m/%Y às %H:%M')}.")
 
-                app_data_dict = appointment_data.model_dump(exclude={"recurrence_days", "recurrence_weeks"})
+                app_data_dict = appointment_data.model_dump(exclude={"recurrence_days", "recurrence_weeks", "recurrence_period"})
                 app_data_dict["start_time"] = target_start
                 app_data_dict["end_time"] = target_end
                 appointments_to_create.append(Appointment(**app_data_dict))
@@ -79,7 +82,7 @@ def create_appointment(db: Session, appointment_data: AppointmentCreate) -> list
         if has_conflict:
             raise ValueError("O estagiário já possui um agendamento neste horário.")
 
-        app_data_dict = appointment_data.model_dump(exclude={"recurrence_days", "recurrence_weeks"})
+        app_data_dict = appointment_data.model_dump(exclude={"recurrence_days", "recurrence_weeks", "recurrence_period"})
         appointments_to_create.append(Appointment(**app_data_dict))
 
     # 3. Permitir múltiplos agendamentos por paciente

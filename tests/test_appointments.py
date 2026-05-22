@@ -338,3 +338,96 @@ class TestCalendarEndpoint:
     def test_calendar_missing_params_returns_422(self, client):
         r = client.get("/api/v1/appointments/calendar")
         assert r.status_code == 422
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RECORRÊNCIA DE AGENDAMENTOS
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestAppointmentRecurrence:
+    def test_weekly_recurrence_success(self, client, created_patient, created_intern):
+        """Valida a criação de agendamentos recorrentes semanais."""
+        payload = {
+            "patient_id": created_patient["id"],
+            "intern_id": created_intern["id"],
+            "start_time": "2026-06-15T08:00:00",  # Uma Segunda-feira
+            "end_time": "2026-06-15T08:50:00",
+            "recurrence_days": [0, 2],            # Segunda (0) e Quarta (2)
+            "recurrence_weeks": 4,
+            "recurrence_period": "weekly"
+        }
+        r = client.post("/api/v1/appointments/", json=payload)
+        assert r.status_code == 201
+        data = r.json()
+        assert isinstance(data, list)
+        assert len(data) == 8  # 4 semanas * 2 dias = 8 agendamentos
+
+        starts = sorted([appt["start_time"] for appt in data])
+        expected_starts = [
+            "2026-06-15T08:00:00",
+            "2026-06-17T08:00:00",
+            "2026-06-22T08:00:00",
+            "2026-06-24T08:00:00",
+            "2026-06-29T08:00:00",
+            "2026-07-01T08:00:00",
+            "2026-07-06T08:00:00",
+            "2026-07-08T08:00:00"
+        ]
+        assert starts == expected_starts
+
+    def test_biweekly_recurrence_success(self, client, created_patient, created_intern):
+        """Valida a criação de agendamentos recorrentes quinzenais (pula semanas alternadas)."""
+        payload = {
+            "patient_id": created_patient["id"],
+            "intern_id": created_intern["id"],
+            "start_time": "2026-06-15T08:00:00",  # Uma Segunda-feira
+            "end_time": "2026-06-15T08:50:00",
+            "recurrence_days": [0, 2],            # Segunda (0) e Quarta (2)
+            "recurrence_weeks": 4,
+            "recurrence_period": "biweekly"
+        }
+        r = client.post("/api/v1/appointments/", json=payload)
+        assert r.status_code == 201
+        data = r.json()
+        assert isinstance(data, list)
+        assert len(data) == 4  # Semana 0 (2 agendamentos) e Semana 2 (2 agendamentos) = 4
+
+        starts = sorted([appt["start_time"] for appt in data])
+        expected_starts = [
+            "2026-06-15T08:00:00",
+            "2026-06-17T08:00:00",
+            "2026-06-29T08:00:00",
+            "2026-07-01T08:00:00"
+        ]
+        assert starts == expected_starts
+        
+        # Garante que não criou agendamentos na semana intermediária (Semana 1: 22/06 e 24/06)
+        assert "2026-06-22T08:00:00" not in starts
+        assert "2026-06-24T08:00:00" not in starts
+
+    def test_biweekly_recurrence_conflict(self, client, created_patient, created_intern):
+        """Valida detecção de conflitos de horário em agendamentos recorrentes quinzenais."""
+        # 1. Cria um agendamento único conflitante exatamente na segunda semana de recorrência (Semana 2: 2026-06-29T08:00:00)
+        single_payload = {
+            "patient_id": created_patient["id"],
+            "intern_id": created_intern["id"],
+            "start_time": "2026-06-29T08:00:00",
+            "end_time": "2026-06-29T08:50:00"
+        }
+        r_single = client.post("/api/v1/appointments/", json=single_payload)
+        assert r_single.status_code == 201
+
+        # 2. Tenta agendar uma recorrência quinzenal que bateria no mesmo horário
+        recur_payload = {
+            "patient_id": created_patient["id"],
+            "intern_id": created_intern["id"],
+            "start_time": "2026-06-15T08:00:00",
+            "end_time": "2026-06-15T08:50:00",
+            "recurrence_days": [0],
+            "recurrence_weeks": 4,
+            "recurrence_period": "biweekly"
+        }
+        r_recur = client.post("/api/v1/appointments/", json=recur_payload)
+        assert r_recur.status_code == 400
+        assert "conflito de horário" in r_recur.json()["detail"].lower()
+
