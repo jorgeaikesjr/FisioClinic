@@ -93,3 +93,31 @@ def test_must_change_password_redirects_to_change_password(unauthenticated_clien
     response = unauthenticated_client.get("/", follow_redirects=False)
     assert response.status_code == 307
     assert response.headers["location"] == "/change-password"
+
+
+def test_system_users_page_requires_admin(client):
+    from main import app
+    from core.auth import require_auth, require_admin, get_current_user
+    from models.user import User
+    from fastapi import HTTPException
+
+    non_admin_user = User(
+        id="test-non-admin-id",
+        username="nonadmin",
+        is_admin=False,
+        must_change_password=False
+    )
+
+    app.dependency_overrides[require_auth] = lambda: non_admin_user
+    app.dependency_overrides[get_current_user] = lambda: non_admin_user
+    
+    def mock_require_admin():
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    app.dependency_overrides[require_admin] = mock_require_admin
+
+    try:
+        response = client.get("/system-users")
+        assert response.status_code == 403
+    finally:
+        app.dependency_overrides.clear()
+

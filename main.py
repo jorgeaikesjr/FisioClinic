@@ -5,7 +5,8 @@ from fastapi.templating import Jinja2Templates
 from core.config import settings
 
 from contextlib import asynccontextmanager
-from core.database import init_db, SessionLocal
+from core.database import init_db
+import core.database as db_module
 from core.auth import NotAuthenticatedException, MustChangePasswordException
 from core.security import get_password_hash
 from models.user import User
@@ -17,7 +18,7 @@ async def lifespan(app: FastAPI):
     
     # Cria usuário admin padrão se não houver usuários
     try:
-        db = SessionLocal()
+        db = db_module.SessionLocal()
         if db.query(User).count() == 0:
             print("Criando usuário admin padrão...")
             admin_user = User(

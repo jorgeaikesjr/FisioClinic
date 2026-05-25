@@ -6432,12 +6432,10 @@ imports:
     <a href="#api.dependencies">api.dependencies</a>
  &#8226;   <a href="#api.routers">api.routers</a>
  &#8226;   <a href="#core.auth">core.auth</a>
- &#8226;   <a href="#core.database">core.database</a>
  &#8226;   <a href="#core.security">core.security</a>
  &#8226;   <a href="#fastapi">fastapi</a>
  &#8226;   <a href="#models.user">models.user</a>
- &#8226;   <a href="#pydantic">pydantic</a>
- &#8226;   <a href="#pydantic.BaseModel">pydantic.BaseModel</a>
+ &#8226;   <a href="#schemas.user">schemas.user</a>
  &#8226;   <a href="#sqlalchemy.orm">sqlalchemy.orm</a>
  &#8226;   <a href="#typing">typing</a>
 
@@ -11654,7 +11652,6 @@ imports:
 imported by:
     <a href="#api.dependencies">api.dependencies</a>
  &#8226;   <a href="#api.routers.auth">api.routers.auth</a>
- &#8226;   <a href="#api.routers.users">api.routers.users</a>
  &#8226;   <a href="#core.auth">core.auth</a>
  &#8226;   <a href="#launcher.py">launcher.py</a>
  &#8226;   <a href="#main">main</a>
@@ -21436,6 +21433,7 @@ imports:
  &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
  &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+ &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#warnings">warnings</a>
 
@@ -21598,6 +21596,7 @@ imported by:
     <a href="#cffi._imp_emulation">cffi._imp_emulation</a>
  &#8226;   <a href="#cffi.verifier">cffi.verifier</a>
  &#8226;   <a href="#ctypes.util">ctypes.util</a>
+ &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib.abc">importlib.abc</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#packaging.tags">packaging.tags</a>
@@ -30577,7 +30576,6 @@ imports:
   <div class="import">
 imported by:
     <a href="#api.routers.auth">api.routers.auth</a>
- &#8226;   <a href="#api.routers.users">api.routers.users</a>
  &#8226;   <a href="#fastapi._compat">fastapi._compat</a>
  &#8226;   <a href="#fastapi.encoders">fastapi.encoders</a>
  &#8226;   <a href="#fastapi.exceptions">fastapi.exceptions</a>
@@ -30646,6 +30644,7 @@ imported by:
  &#8226;   <a href="#schemas.intern">schemas.intern</a>
  &#8226;   <a href="#schemas.patient">schemas.patient</a>
  &#8226;   <a href="#schemas.report">schemas.report</a>
+ &#8226;   <a href="#schemas.user">schemas.user</a>
  &#8226;   <a href="#schemas.waiting_list">schemas.waiting_list</a>
 
   </div>
@@ -30658,7 +30657,6 @@ imported by:
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
     <a href="#api.routers.auth">api.routers.auth</a>
- &#8226;   <a href="#api.routers.users">api.routers.users</a>
  &#8226;   <a href="#fastapi._compat">fastapi._compat</a>
  &#8226;   <a href="#fastapi.encoders">fastapi.encoders</a>
  &#8226;   <a href="#fastapi.exceptions">fastapi.exceptions</a>
@@ -30680,6 +30678,7 @@ imported by:
  &#8226;   <a href="#schemas.intern">schemas.intern</a>
  &#8226;   <a href="#schemas.patient">schemas.patient</a>
  &#8226;   <a href="#schemas.report">schemas.report</a>
+ &#8226;   <a href="#schemas.user">schemas.user</a>
  &#8226;   <a href="#schemas.waiting_list">schemas.waiting_list</a>
 
   </div>
@@ -47085,6 +47084,7 @@ imported by:
  &#8226;   <a href="#schemas.intern">schemas.intern</a>
  &#8226;   <a href="#schemas.patient">schemas.patient</a>
  &#8226;   <a href="#schemas.report">schemas.report</a>
+ &#8226;   <a href="#schemas.user">schemas.user</a>
  &#8226;   <a href="#schemas.waiting_list">schemas.waiting_list</a>
 
   </div>
@@ -47197,6 +47197,24 @@ imports:
 imported by:
     <a href="#api.routers.reports">api.routers.reports</a>
  &#8226;   <a href="#services.report_service">services.report_service</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="schemas.user"></a>
+  <a target="code" href="///C:/Users/jorgeajunior/Downloads/AppClinica/schemas/user.py" type="text/plain"><tt>schemas.user</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#pydantic">pydantic</a>
+ &#8226;   <a href="#pydantic.BaseModel">pydantic.BaseModel</a>
+ &#8226;   <a href="#schemas">schemas</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#api.routers.users">api.routers.users</a>
 
   </div>
 

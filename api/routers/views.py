@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from core.auth import require_auth
+from core.auth import require_auth, require_admin
 from models.user import User
 
 router = APIRouter()
@@ -60,5 +60,5 @@ async def reports_patient_attendance_page(request: Request, current_user: User =
     return templates.TemplateResponse(request=request, name="reports_patient_attendance.html", context={"request": request, "current_user": current_user})
 
 @router.get("/system-users", response_class=HTMLResponse)
-async def system_users_page(request: Request, current_user: User = Depends(require_auth)):
+async def system_users_page(request: Request, current_user: User = Depends(require_admin)):
     return templates.TemplateResponse(request=request, name="users.html", context={"request": request, "current_user": current_user})
