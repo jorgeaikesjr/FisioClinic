@@ -1,82 +1,135 @@
 {% extends "base.html" %}
 
-{% block title %}Calendário{% endblock %}
+{% block title %}Agendamentos{% endblock %}
 {% block header_title %}Agendamentos{% endblock %}
 
+{% block header_actions %}
+<button class="btn btn-new-appointment" onclick="openAppointmentModal()">
+    <i class="fa-solid fa-plus"></i> Novo Agendamento
+</button>
+{% if current_user %}
+<div class="user-profile-pill">
+    <div class="user-avatar-circle">{{ current_user.username[:2].upper() }}</div>
+    <div class="user-meta">
+        <span class="user-name-text">{{ current_user.username }}</span>
+        <span class="user-role-text">{% if current_user.is_admin %}Administrador{% else %}Profissional{% endif %}</span>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
 {% block head %}
-<!-- FullCalendar via CDN -->
+<!-- FullCalendar v6 via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/locales/pt-br.global.min.js"></script>
-<style>
-    /* Ajustes específicos do FullCalendar para encaixar no nosso CSS premium */
-    #calendar {
-        flex: 1;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-    }
-    .fc {
-        background-color: var(--surface);
-        padding: 20px;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        border: 1px solid var(--border);
-        font-family: 'Inter', sans-serif;
-    }
-    .fc-theme-standard th { border-color: var(--border); padding: 10px 0; background: var(--background); }
-    .fc-theme-standard td { border-color: var(--border); }
-    .fc-button-primary {
-        background-color: var(--primary) !important;
-        border-color: var(--primary) !important;
-        text-transform: capitalize;
-    }
-    .fc-button-primary:hover { background-color: var(--primary-hover) !important; }
-    .fc-event {
-        cursor: pointer;
-        border: none;
-        border-radius: 4px;
-        padding: 2px 4px;
-        font-size: 0.85em;
-    }
-    /* Cores de Eventos (Customizadas no JS) */
-    .event-agendado { background-color: var(--primary); color: white; }
-    .event-cancelado { background-color: var(--secondary); color: white; opacity: 0.7; }
-    .event-realizado { background-color: var(--success); color: white; }
-    .event-faltou { background-color: #e53e3e; color: white; }
-    .event-falta-justificada { background-color: #f6ad55; color: white; }
-</style>
 {% endblock %}
 
 {% block content %}
-<div id="calendar"></div>
+<div class="calendar-page-layout">
+    <!-- Sub-header: Toolbar de Controle Customizado -->
+    <div class="calendar-controls-bar">
+        <div class="cal-controls-left">
+            <div class="cal-nav-buttons">
+                <button class="btn-cal-nav" id="btnCalPrev" title="Anterior" onclick="navCalendar('prev')">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="btn-cal-nav" id="btnCalNext" title="Próximo" onclick="navCalendar('next')">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+            <button class="btn-cal-today" id="btnCalToday" onclick="navCalendar('today')">Hoje</button>
+            <div class="cal-date-title-wrapper">
+                <span class="cal-date-title" id="calDateTitle">--</span>
+                <span class="cal-week-number" id="calWeekNumber">(Semana --)</span>
+            </div>
+        </div>
+
+        <div class="cal-controls-center">
+            <div class="cal-legend-item">
+                <span class="legend-indicator legend-agendado"></span>
+                <span>Agendado</span>
+            </div>
+            <div class="cal-legend-item">
+                <span class="legend-indicator legend-realizado"></span>
+                <span>Realizado</span>
+            </div>
+            <div class="cal-legend-item">
+                <span class="legend-indicator legend-faltou"></span>
+                <span>Faltou</span>
+            </div>
+            <div class="cal-legend-item">
+                <span class="legend-indicator legend-falta-justificada"></span>
+                <span>Falta Justificada</span>
+            </div>
+            <div class="cal-legend-item">
+                <span class="legend-indicator legend-cancelado"></span>
+                <span>Cancelado</span>
+            </div>
+        </div>
+
+        <div class="cal-controls-right">
+            <div class="cal-view-pills">
+                <button class="cal-pill" id="pillMonth" onclick="changeCalView('dayGridMonth')">Mês</button>
+                <button class="cal-pill active" id="pillWeek" onclick="changeCalView('timeGridWeek')">Semana</button>
+                <button class="cal-pill" id="pillDay" onclick="changeCalView('timeGridDay')">Dia</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container do Calendário -->
+    <div class="calendar-card-container">
+        <div id="calendar"></div>
+    </div>
+
+    <!-- Barra de Rodapé / Métricas -->
+    <div class="calendar-footer-bar">
+        <div class="cal-footer-left">
+            <span class="cal-stat-text"><strong id="calSummaryCount">0</strong> atendimentos marcados nesta semana</span>
+            <span class="cal-stat-sep">•</span>
+            <span class="cal-stat-text">Taxa de ocupação: <strong id="calSummaryOcc">0%</strong></span>
+        </div>
+    </div>
+</div>
 
 <!-- Modal Agendamento -->
 <div class="modal-overlay" id="appointmentModal">
-    <div class="modal">
+    <div class="modal modal-lg">
         <div class="modal-header">
-            <h3 id="modalTitle">Novo Agendamento</h3>
-            <i class="fa-solid fa-xmark modal-close" onclick="closeModal('appointmentModal')"></i>
+            <div class="modal-title-wrap">
+                <div class="modal-icon-badge">
+                    <i class="fa-regular fa-calendar-plus"></i>
+                </div>
+                <div>
+                    <h3 id="modalTitle">Novo Agendamento</h3>
+                    <p class="modal-subtitle">Preencha as informações do atendimento</p>
+                </div>
+            </div>
+            <button type="button" class="modal-close-btn" onclick="closeModal('appointmentModal')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
         <form id="appointmentForm" onsubmit="saveAppointment(event)">
             <div class="modal-body">
                 <input type="hidden" id="appointmentId">
                 
-                <div class="form-group">
-                    <label>Paciente *</label>
-                    <select id="selectPatient" class="form-control" required>
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>{% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissional{% else %}Estagiário{% endif %} *</label>
-                    <select id="selectIntern" class="form-control" required>
-                        <option value="">Selecione um {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}profissional{% else %}estagiário{% endif %}...</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="selectPatient">Paciente <span class="required-star">*</span></label>
+                        <select id="selectPatient" class="form-control" required>
+                            <option value="">Selecione um paciente...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group flex-1">
+                        <label for="selectIntern">{% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissional{% else %}Estagiário{% endif %} <span class="required-star">*</span></label>
+                        <select id="selectIntern" class="form-control" required>
+                            <option value="">Selecione um {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}profissional{% else %}estagiário{% endif %}...</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group" id="categoryGroup">
-                    <label>Categoria</label>
+                    <label for="appointmentCategory">Categoria</label>
                     <select id="appointmentCategory" class="form-control">
                         <option value="">Selecione uma categoria...</option>
                         <option value="Neuro Adulto">Neuro Adulto</option>
@@ -87,53 +140,54 @@
                     </select>
                 </div>
                 
-                <div class="form-group d-flex" style="gap: 15px;">
-                    <div style="flex: 1;">
-                        <label>Início *</label>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="startTime">Data e Hora de Início <span class="required-star">*</span></label>
                         <input type="datetime-local" id="startTime" class="form-control" required>
                     </div>
-                    <div style="flex: 1;">
-                        <label>Término *</label>
+                    <div class="form-group flex-1">
+                        <label for="endTime">Data e Hora de Término <span class="required-star">*</span></label>
                         <input type="datetime-local" id="endTime" class="form-control" required>
                     </div>
                 </div>
+
                 <div class="form-group" id="recurrenceToggleGroup">
-                    <label style="cursor: pointer; font-weight: 600;">
+                    <label class="checkbox-custom-label">
                         <input type="checkbox" id="isRecurring" onchange="toggleRecurrence()">
-                        Agendamento Recorrente
+                        <span>Agendamento Recorrente (Criar série semanal)</span>
                     </label>
                 </div>
 
-                <div id="recurrenceBlock" style="display: none; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px;">
+                <div id="recurrenceBlock" class="recurrence-card-block" style="display: none;">
                     <div class="form-group">
-                        <label>Dias da Semana</label>
-                        <div class="d-flex" style="gap: 15px; flex-wrap: wrap;">
-                            <label><input type="checkbox" name="recurDays" value="0"> Seg</label>
-                            <label><input type="checkbox" name="recurDays" value="1"> Ter</label>
-                            <label><input type="checkbox" name="recurDays" value="2"> Qua</label>
-                            <label><input type="checkbox" name="recurDays" value="3"> Qui</label>
-                            <label><input type="checkbox" name="recurDays" value="4"> Sex</label>
-                            <label><input type="checkbox" name="recurDays" value="5"> Sáb</label>
-                            <label><input type="checkbox" name="recurDays" value="6"> Dom</label>
+                        <label class="recurrence-sublabel">Dias da Semana</label>
+                        <div class="weekdays-selector">
+                            <label class="day-chip"><input type="checkbox" name="recurDays" value="0"> <span>Seg</span></label>
+                            <label class="day-chip"><input type="checkbox" name="recurDays" value="1"> <span>Ter</span></label>
+                            <label class="day-chip"><input type="checkbox" name="recurDays" value="2"> <span>Qua</span></label>
+                            <label class="day-chip"><input type="checkbox" name="recurDays" value="3"> <span>Qui</span></label>
+                            <label class="day-chip"><input type="checkbox" name="recurDays" value="4"> <span>Sex</span></label>
+                            <label class="day-chip"><input type="checkbox" name="recurDays" value="5"> <span>Sáb</span></label>
+                            <label class="day-chip"><input type="checkbox" name="recurDays" value="6"> <span>Dom</span></label>
                         </div>
                     </div>
-                    <div class="form-group mb-0 d-flex" style="gap: 15px;">
-                        <div style="flex: 1;">
-                            <label>Periodicidade</label>
+                    <div class="form-row mb-0">
+                        <div class="form-group flex-1">
+                            <label for="recurrencePeriod">Periodicidade</label>
                             <select id="recurrencePeriod" class="form-control">
                                 <option value="weekly" selected>Semanal</option>
                                 <option value="biweekly">Quinzenal</option>
                             </select>
                         </div>
-                        <div style="flex: 1;">
-                            <label>Repetir por quantas semanas?</label>
+                        <div class="form-group flex-1">
+                            <label for="recurWeeks">Repetir por quantas semanas?</label>
                             <input type="number" id="recurWeeks" class="form-control" min="1" max="52" value="4">
                         </div>
                     </div>
                 </div>
                 
                 <div class="form-group" id="statusGroup">
-                    <label>Status</label>
+                    <label for="appointmentStatus">Status do Atendimento</label>
                     <select id="appointmentStatus" class="form-control">
                         <option value="Agendado">Agendado</option>
                         <option value="Realizado">Realizado</option>
@@ -142,30 +196,35 @@
                     </select>
                 </div>
 
-                <!-- Bloco de Pagamento: visível apenas em Clínica Particular (controlado via .env) -->
+                <!-- Bloco de Pagamento: visível apenas em Clínica Particular -->
                 <div id="paymentBlock" style="display: none;">
-                    <div class="form-group d-flex" style="gap: 15px;">
-                        <div style="flex: 1;">
-                            <label>Forma de Pagamento</label>
-                            <select id="paymentMethod" class="form-control">
-                                <option value="">Sem pagamento / Não informado</option>
-                                <option value="Pix">Pix</option>
-                                <option value="Dinheiro">Dinheiro</option>
-                                <option value="Cartão de Crédito">Cartão de Crédito</option>
-                                <option value="Cartão de Débito">Cartão de Débito</option>
-                                <option value="Transferência">Transferência</option>
-                            </select>
+                    <div class="payment-section-box">
+                        <div class="payment-section-header">
+                            <i class="fa-solid fa-coins"></i> Informações Financeiras
                         </div>
-                        <div style="flex: 1;">
-                            <label>Valor Pago (R$)</label>
-                            <input type="number" id="amountPaid" class="form-control" min="0" step="0.01" placeholder="0,00">
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="paymentMethod">Forma de Pagamento</label>
+                                <select id="paymentMethod" class="form-control">
+                                    <option value="">Sem pagamento / Não informado</option>
+                                    <option value="Pix">Pix</option>
+                                    <option value="Dinheiro">Dinheiro</option>
+                                    <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                    <option value="Cartão de Débito">Cartão de Débito</option>
+                                    <option value="Transferência">Transferência</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="amountPaid">Valor Pago (R$)</label>
+                                <input type="number" id="amountPaid" class="form-control" min="0" step="0.01" placeholder="0,00">
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Área de cancelamento (Apenas se for editar) -->
-                <div id="cancelArea" class="mt-4" style="display:none; padding-top: 15px; border-top: 1px dashed var(--border);">
-                    <button type="button" class="btn btn-danger" style="width:100%" onclick="cancelAppointment()">
+                <div id="cancelArea" class="cancel-action-box" style="display:none;">
+                    <button type="button" class="btn btn-outline-danger" style="width:100%" onclick="cancelAppointment()">
                         <i class="fa-solid fa-ban"></i> Cancelar Agendamento
                     </button>
                 </div>
@@ -173,7 +232,7 @@
             
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('appointmentModal')">Fechar</button>
-                <button type="submit" class="btn btn-primary">Salvar Agendamento</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Salvar Agendamento</button>
             </div>
         </form>
     </div>
@@ -181,5 +240,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/calendar.js?v=1.2"></script>
+<script src="/static/js/calendar.js?v=2.0"></script>
 {% endblock %}

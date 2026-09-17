@@ -48,5 +48,8 @@ class CalendarEventResponse(BaseModel):
     start: datetime
     end: datetime
     status: str
+    patient_name: Optional[str] = None
+    intern_name: Optional[str] = None
+    category: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

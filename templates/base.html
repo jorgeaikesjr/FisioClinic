@@ -17,61 +17,78 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <i class="fa-solid fa-notes-medical"></i>
-            FisioClinic
+            <div class="sidebar-logo-icon">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+            <div class="sidebar-logo-text">
+                <span class="brand-title">Fisio<span class="brand-accent">Clinic</span></span>
+            </div>
         </div>
         <nav class="sidebar-nav">
             <a href="/calendar"
                 class="nav-item {% if request.url.path == '/calendar' or request.url.path == '/' %}active{% endif %}">
-                <i class="fa-regular fa-calendar"></i> Agenda
+                <i class="fa-regular fa-calendar"></i>
+                <span class="nav-label">Agenda</span>
+                <span class="nav-badge-today">Hoje</span>
             </a>
             <a href="/patients" class="nav-item {% if request.url.path == '/patients' %}active{% endif %}">
-                <i class="fa-solid fa-users"></i> Pacientes
+                <i class="fa-solid fa-users"></i>
+                <span class="nav-label">Pacientes</span>
             </a>
             <a href="/interns" class="nav-item {% if request.url.path == '/interns' %}active{% endif %}">
-                <i class="fa-solid fa-user-doctor"></i> {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissionais{% else %}Estagiários{% endif %}
+                <i class="fa-solid fa-user-doctor"></i>
+                <span class="nav-label">{% if request.app.state.settings.CLINIC_TYPE == 'particular' %}Profissionais{% else %}Estagiários{% endif %}</span>
             </a>
             <a href="/reports/absences"
                 class="nav-item {% if request.url.path == '/reports/absences' %}active{% endif %}">
-                <i class="fa-solid fa-chart-column"></i> Relatório de Faltas
+                <i class="fa-solid fa-chart-column"></i>
+                <span class="nav-label">Relatório de Faltas</span>
             </a>
             {% if request.app.state.settings.CLINIC_TYPE == 'particular' %}
             <a href="/reports/weekly-summary"
                 class="nav-item {% if request.url.path == '/reports/weekly-summary' %}active{% endif %}">
-                <i class="fa-solid fa-receipt"></i> Resumo Semanal
+                <i class="fa-solid fa-receipt"></i>
+                <span class="nav-label">Resumo Semanal</span>
             </a>
             <a href="/fitting-list" class="nav-item {% if request.url.path == '/fitting-list' %}active{% endif %}">
-                <i class="fa-solid fa-bolt"></i> Lista de Encaixe
+                <i class="fa-solid fa-bolt"></i>
+                <span class="nav-label">Lista de Encaixe</span>
             </a>
             {% endif %}
             {% if request.app.state.settings.CLINIC_TYPE == 'escola' %}
             <a href="/waiting-list" class="nav-item {% if request.url.path == '/waiting-list' %}active{% endif %}">
-                <i class="fa-solid fa-list-ol"></i> Fila de Espera
+                <i class="fa-solid fa-list-ol"></i>
+                <span class="nav-label">Fila de Espera</span>
             </a>
             <a href="/reports/waiting-list"
                 class="nav-item {% if request.url.path == '/reports/waiting-list' %}active{% endif %}">
-                <i class="fa-solid fa-chart-pie"></i> Relatório de Fila
+                <i class="fa-solid fa-chart-pie"></i>
+                <span class="nav-label">Relatório de Fila</span>
             </a>
             <a href="/reports/attendance"
                 class="nav-item {% if request.url.path == '/reports/attendance' %}active{% endif %}">
-                <i class="fa-solid fa-clipboard-list"></i> Atendimentos Geral
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span class="nav-label">Atendimentos Geral</span>
             </a>
             <a href="/reports/patient-attendance"
                 class="nav-item {% if request.url.path == '/reports/patient-attendance' %}active{% endif %}">
-                <i class="fa-solid fa-user-check"></i> Atendimentos por Paciente
+                <i class="fa-solid fa-user-check"></i>
+                <span class="nav-label">Atendimentos por Paciente</span>
             </a>
             {% endif %}
 
             {% if current_user and current_user.is_admin %}
             <a href="/system-users" class="nav-item {% if request.url.path == '/system-users' %}active{% endif %}"
-                style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                <i class="fa-solid fa-user-shield"></i> Usuários
+                style="margin-top: 0.5rem; border-top: 1px solid var(--border); padding-top: 0.8rem;">
+                <i class="fa-solid fa-user-shield"></i>
+                <span class="nav-label">Usuários</span>
             </a>
             {% endif %}
 
             <div style="flex-grow: 1;"></div>
-            <a href="#" onclick="logout()" class="nav-item" style="color: #ef4444; margin-top: auto;">
-                <i class="fa-solid fa-right-from-bracket"></i> Sair
+            <a href="#" onclick="logout()" class="nav-item nav-logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span class="nav-label">Sair</span>
             </a>
         </nav>
     </aside>
@@ -79,10 +96,25 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="top-header">
-            <button id="mobileMenuBtn" class="mobile-menu-btn" onclick="toggleSidebar()">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <h2 class="page-title">{% block header_title %}Visão Geral{% endblock %}</h2>
+            <div class="top-header-left">
+                <button id="mobileMenuBtn" class="mobile-menu-btn" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2 class="page-title">{% block header_title %}Visão Geral{% endblock %}</h2>
+            </div>
+            <div class="top-header-right">
+                {% block header_actions %}
+                {% if current_user %}
+                <div class="user-profile-pill">
+                    <div class="user-avatar-circle">{{ current_user.username[:2].upper() }}</div>
+                    <div class="user-meta">
+                        <span class="user-name-text">{{ current_user.username }}</span>
+                        <span class="user-role-text">{% if current_user.is_admin %}Administrador{% else %}Profissional{% endif %}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% endblock %}
+            </div>
         </header>
 
         <div class="content-wrapper">

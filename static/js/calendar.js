@@ -1,7 +1,7 @@
 let calendar;
 let patients = [];
 let interns = [];
-let isPrivateClinic = false; // Controlado pela config do servidor
+let isPrivateClinic = false;
 
 document.addEventListener('DOMContentLoaded', async function() {
     await applyClinicConfig();
@@ -17,7 +17,7 @@ async function applyClinicConfig() {
         isPrivateClinic = false;
     }
     
-    // Mostra ou oculta o bloco de pagamento no modal
+    // Mostra ou oculta o bloco de pagamento no modal (apenas Particular)
     const paymentBlock = document.getElementById('paymentBlock');
     if (paymentBlock) {
         paymentBlock.style.display = isPrivateClinic ? 'block' : 'none';
@@ -52,51 +52,115 @@ function initCalendar() {
     var calendarEl = document.getElementById('calendar');
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
+        headerToolbar: false, // Toolbar customizada externa
         locale: 'pt-br',
-        buttonText: {
-            today: 'Hoje',
-            month: 'Mês',
-            week: 'Semana',
-            day: 'Dia',
-            list: 'Lista'
-        },
         slotMinTime: '07:00:00', // Clínica abre às 7h
         slotMaxTime: '23:00:00', // Clínica fecha às 23h
-        height: '100%', // Para preencher a tela no mobile
         allDaySlot: false,
+        nowIndicator: true,
         selectable: true,
         editable: true,
         longPressDelay: 100,
         selectLongPressDelay: 100,
+        
+        // Customização do cabeçalho das colunas dos dias
+        dayHeaderContent: function(arg) {
+            const date = arg.date;
+            const isToday = arg.isToday;
+            
+            const weekdays = ['DOM.', 'SEG.', 'TER.', 'QUA.', 'QUI.', 'SEX.', 'SÁB.'];
+            const dayName = weekdays[date.getDay()];
+            
+            const dayNum = String(date.getDate()).padStart(2, '0');
+            const monthNum = String(date.getMonth() + 1).padStart(2, '0');
+            const dateFormatted = `${dayNum}/${monthNum}`;
+            
+            const weekdayDisplay = isToday ? `${dayName.replace('.', '')} (HOJE)` : dayName;
+            
+            return {
+                html: `
+                    <div class="fc-custom-col-header ${isToday ? 'fc-today-header' : ''}">
+                        ${isToday ? '<span class="fc-today-dot"></span>' : ''}
+                        <span class="fc-col-weekday">${weekdayDisplay}</span>
+                        <span class="fc-col-date">${dateFormatted}</span>
+                    </div>
+                `
+            };
+        },
+        
+        // Customização dos cards de agendamento (Event Content alinhado aos Status)
+        eventContent: function(arg) {
+            const props = arg.event.extendedProps || {};
+            const status = props.status || 'Agendado';
+            const category = props.category || '';
+            const internName = props.intern_name || '';
+            const patientName = props.patient_name || arg.event.title.split(' - ')[0] || 'Paciente';
+            
+            const startTimeStr = arg.event.start ? arg.event.start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+            const endTimeStr = arg.event.end ? arg.event.end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+            const timeRange = `${startTimeStr} - ${endTimeStr}`;
+            
+            let themeClass = 'card-theme-blue';
+            let tagText = category ? category.toUpperCase() : 'AGENDADO';
+            
+            if (status === 'Cancelado') {
+                themeClass = 'card-theme-gray';
+                tagText = 'CANCELADO';
+            } else if (status === 'Faltou') {
+                themeClass = 'card-theme-red';
+                tagText = 'FALTOU';
+            } else if (status === 'Falta Justificada') {
+                themeClass = 'card-theme-amber';
+                tagText = 'JUSTIFICADA';
+            } else if (status === 'Realizado') {
+                themeClass = 'card-theme-emerald';
+                if (!category) tagText = 'REALIZADO';
+            } else {
+                themeClass = 'card-theme-blue';
+                if (!category) tagText = 'AGENDADO';
+            }
+            
+            return {
+                html: `
+                    <div class="cal-event-card ${themeClass}">
+                        <div class="card-top-row">
+                            <span class="card-time-text">${timeRange}</span>
+                            <span class="card-tag-pill">${tagText}</span>
+                        </div>
+                        <div class="card-patient-name" title="${patientName}">${patientName}</div>
+                        <div class="card-footer-sub">
+                            <span class="card-intern-name" title="${internName}">${internName ? (internName.startsWith('Dr') ? internName : 'Dr(a). ' + internName) : 'Atendimento'}</span>
+                        </div>
+                    </div>
+                `
+            };
+        },
+        
+        // Atualiza a toolbar externa quando o período ou view mudar
+        datesSet: function(info) {
+            updateCalendarToolbarInfo(info);
+        },
         
         // Carrega eventos da nossa API
         events: async function(info, successCallback, failureCallback) {
             try {
                 const events = await apiRequest(`/appointments/calendar?start=${info.startStr}&end=${info.endStr}`);
                 
-                // Mapear propriedades para o FullCalendar
-                const fcEvents = events.map(e => {
-                    let className = 'event-agendado';
-                    if (e.status === 'Cancelado') className = 'event-cancelado';
-                    if (e.status === 'Realizado') className = 'event-realizado';
-                    if (e.status === 'Faltou') className = 'event-faltou';
-                    if (e.status === 'Falta Justificada') className = 'event-falta-justificada';
-                    
-                    return {
-                        id: e.id,
-                        title: e.title,
-                        start: e.start,
-                        end: e.end,
-                        classNames: [className],
-                        extendedProps: { status: e.status }
-                    };
-                });
+                const fcEvents = events.map(e => ({
+                    id: e.id,
+                    title: e.title,
+                    start: e.start,
+                    end: e.end,
+                    extendedProps: {
+                        status: e.status,
+                        patient_name: e.patient_name,
+                        intern_name: e.intern_name,
+                        category: e.category
+                    }
+                }));
+                
                 successCallback(fcEvents);
+                updateSummaryFooter(fcEvents);
             } catch (error) {
                 failureCallback(error);
             }
@@ -111,13 +175,12 @@ function initCalendar() {
         // Clicar em evento -> Editar
         eventClick: async function(info) {
             try {
-                // Busca dados completos do agendamento
                 const appt = await apiRequest(`/appointments/${info.event.id}`);
                 openAppointmentModal(appt);
             } catch(e) {}
         },
         
-        // Arrastar evento -> Atualizar horário (Apenas permitimos se não estiver Cancelado)
+        // Arrastar evento -> Atualizar horário
         eventDrop: async function(info) {
             if (info.event.extendedProps.status === 'Cancelado') {
                 info.revert();
@@ -130,8 +193,8 @@ function initCalendar() {
                     start_time: info.event.startStr,
                     end_time: info.event.endStr
                 });
+                calendar.refetchEvents();
             } catch(e) {
-                // Em caso de erro (ex: conflito de horário disparado pelo backend), reverte o bloco
                 info.revert();
             }
         },
@@ -145,12 +208,89 @@ function initCalendar() {
                     start_time: info.event.startStr,
                     end_time: info.event.endStr
                 });
+                calendar.refetchEvents();
             } catch(e) {
                 info.revert();
             }
         }
     });
+    
     calendar.render();
+}
+
+// Controles externos de navegação
+function navCalendar(action) {
+    if (!calendar) return;
+    if (action === 'prev') calendar.prev();
+    if (action === 'next') calendar.next();
+    if (action === 'today') calendar.today();
+}
+
+function changeCalView(viewName) {
+    if (!calendar) return;
+    calendar.changeView(viewName);
+    
+    document.querySelectorAll('.cal-pill').forEach(btn => btn.classList.remove('active'));
+    if (viewName === 'dayGridMonth') document.getElementById('pillMonth')?.classList.add('active');
+    if (viewName === 'timeGridWeek') document.getElementById('pillWeek')?.classList.add('active');
+    if (viewName === 'timeGridDay') document.getElementById('pillDay')?.classList.add('active');
+}
+
+// Atualizar título do período e número da semana na toolbar externa
+function updateCalendarToolbarInfo(info) {
+    const start = info.start;
+    const end = new Date(info.end.getTime() - 1); // Subtrai 1ms pois o end do FC é exclusivo
+    const viewType = info.view.type;
+    
+    const months = ['jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'];
+    
+    let titleStr = '';
+    if (viewType === 'timeGridWeek') {
+        if (start.getMonth() === end.getMonth()) {
+            titleStr = `${start.getDate()} – ${end.getDate()} de ${months[start.getMonth()]} de ${start.getFullYear()}`;
+        } else {
+            titleStr = `${start.getDate()} de ${months[start.getMonth()]} – ${end.getDate()} de ${months[end.getMonth()]} de ${start.getFullYear()}`;
+        }
+    } else if (viewType === 'timeGridDay') {
+        const fullMonths = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+        titleStr = `${start.getDate()} de ${fullMonths[start.getMonth()]} de ${start.getFullYear()}`;
+    } else {
+        const fullMonths = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        titleStr = `${fullMonths[start.getMonth()]} de ${start.getFullYear()}`;
+    }
+    
+    const titleEl = document.getElementById('calDateTitle');
+    if (titleEl) titleEl.innerText = titleStr;
+    
+    const weekNum = getISOWeekNumber(start);
+    const weekEl = document.getElementById('calWeekNumber');
+    if (weekEl) {
+        weekEl.innerText = viewType === 'timeGridWeek' ? `(Semana ${weekNum})` : '';
+    }
+}
+
+function getISOWeekNumber(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+
+// Atualizar métricas de resumo no rodapé
+function updateSummaryFooter(eventsList) {
+    const activeEvents = eventsList.filter(e => e.extendedProps.status !== 'Cancelado');
+    const totalCount = activeEvents.length;
+    
+    const countEl = document.getElementById('calSummaryCount');
+    if (countEl) countEl.innerText = totalCount;
+    
+    const maxCapacity = 40;
+    let occPercent = Math.min(100, Math.round((totalCount / maxCapacity) * 100));
+    if (totalCount > 0 && occPercent === 0) occPercent = 10;
+    
+    const occEl = document.getElementById('calSummaryOcc');
+    if (occEl) occEl.innerText = `${occPercent}%`;
 }
 
 // Formatador helper de Datetime Local
@@ -171,13 +311,11 @@ function openAppointmentModal(appt = null, start = null, end = null) {
         const pSelect = document.getElementById('selectPatient');
         const iSelect = document.getElementById('selectIntern');
 
-        // Garantir que o paciente atual apareça na lista mesmo se estiver inativo
         if (!Array.from(pSelect.options).some(opt => opt.value === appt.patient_id)) {
             const pName = appt.patient ? appt.patient.name : 'Paciente Inativo';
             pSelect.options.add(new Option(`${pName} (Inativo)`, appt.patient_id));
         }
         
-        // Garantir que o estagiário atual apareça na lista mesmo se estiver inativo
         if (!Array.from(iSelect.options).some(opt => opt.value === appt.intern_id)) {
             const labelInactive = isPrivateClinic ? 'Profissional Inativo' : 'Estagiário Inativo';
             const iName = appt.intern ? appt.intern.name : labelInactive;
@@ -198,7 +336,6 @@ function openAppointmentModal(appt = null, start = null, end = null) {
         document.getElementById('isRecurring').checked = false;
         toggleRecurrence();
         
-        // Se já está cancelado, não pode editar ou cancelar novamente
         if (appt.status === 'Cancelado') {
             document.getElementById('cancelArea').style.display = 'none';
             form.querySelectorAll('input, select, button[type="submit"]').forEach(el => el.disabled = true);
@@ -215,9 +352,8 @@ function openAppointmentModal(appt = null, start = null, end = null) {
             document.getElementById('selectIntern').value = interns[0].id;
         }
         
-        // Pega data default ou do clique no calendário
         const s = start || new Date();
-        const e = end || new Date(s.getTime() + 50*60000); // Default + 50 min
+        const e = end || new Date(s.getTime() + 50*60000);
         
         document.getElementById('startTime').value = toLocalISOString(s);
         document.getElementById('endTime').value = toLocalISOString(e);
@@ -228,10 +364,8 @@ function openAppointmentModal(appt = null, start = null, end = null) {
         document.getElementById('recurrenceToggleGroup').style.display = 'block';
         document.getElementById('isRecurring').checked = false;
         toggleRecurrence();
-        // Marcar o dia atual como pré-selecionado na recorrência
+
         const currentDay = s.getDay();
-        // JS getDay(): 0=Dom, 1=Seg...
-        // No nosso backend: 0=Seg, 6=Dom
         const backDay = currentDay === 0 ? 6 : currentDay - 1;
         document.querySelectorAll('input[name="recurDays"]').forEach(cb => {
             cb.checked = (parseInt(cb.value) === backDay);
@@ -252,7 +386,7 @@ async function saveAppointment(e) {
         end_time: document.getElementById('endTime').value,
         payment_method: document.getElementById('paymentMethod').value || null,
         amount_paid: document.getElementById('amountPaid').value !== '' ? parseFloat(document.getElementById('amountPaid').value) : null,
-        category: !isPrivateClinic ? document.getElementById('appointmentCategory').value : null
+        category: !isPrivateClinic ? (document.getElementById('appointmentCategory').value || null) : null
     };
     
     data.status = document.getElementById('appointmentStatus').value;
@@ -286,7 +420,7 @@ async function cancelAppointment() {
     if (!id) return;
     
     const reason = prompt("Informe o motivo do cancelamento (Opcional):");
-    if (reason === null) return; // clicou em cancelar no prompt
+    if (reason === null) return;
     
     try {
         await apiRequest(`/appointments/${id}?reason=${encodeURIComponent(reason)}`, 'DELETE');
@@ -299,3 +433,4 @@ function toggleRecurrence() {
     const isRecurring = document.getElementById('isRecurring').checked;
     document.getElementById('recurrenceBlock').style.display = isRecurring ? 'block' : 'none';
 }
+

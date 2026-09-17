@@ -179,7 +179,10 @@ def get_calendar_events(db: Session, start_date: datetime, end_date: datetime) -
             "title": f"{patient_name} - {intern_name}",
             "start": appt.start_time,
             "end": appt.end_time,
-            "status": appt.status
+            "status": appt.status,
+            "patient_name": patient_name,
+            "intern_name": intern_name,
+            "category": appt.category
         })
     return events
 
