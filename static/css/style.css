@@ -924,6 +924,11 @@ body {
 
 .flex-1 { flex: 1; }
 .mb-0 { margin-bottom: 0 !important; }
+.mb-4 { margin-bottom: 24px !important; }
+.d-flex { display: flex; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.flex-wrap { flex-wrap: wrap; }
 
 .form-group {
     margin-bottom: 18px;

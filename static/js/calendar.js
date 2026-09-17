@@ -277,10 +277,27 @@ function getISOWeekNumber(d) {
     return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
 }
 
-// Atualizar métricas de resumo no rodapé
+// Atualizar métricas de resumo no rodapé (sempre mostra dados da semana atual)
 function updateSummaryFooter(eventsList) {
-    const activeEvents = eventsList.filter(e => e.extendedProps.status !== 'Cancelado');
-    const totalCount = activeEvents.length;
+    // Calcula o início (Domingo) e fim (Sábado) da semana atual
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0=Dom, 6=Sáb
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - dayOfWeek);
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+    weekEnd.setHours(0, 0, 0, 0);
+    
+    // Filtra apenas eventos da semana atual, excluindo cancelados
+    const weekEvents = eventsList.filter(e => {
+        if (e.extendedProps.status === 'Cancelado') return false;
+        const eventStart = new Date(e.start);
+        return eventStart >= weekStart && eventStart < weekEnd;
+    });
+    
+    const totalCount = weekEvents.length;
     
     const countEl = document.getElementById('calSummaryCount');
     if (countEl) countEl.innerText = totalCount;
