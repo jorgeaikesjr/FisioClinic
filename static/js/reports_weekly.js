@@ -88,6 +88,7 @@ const STATUS_BADGE = {
     'Agendado': '<span class="badge" style="background:var(--primary);color:#fff">Agendado</span>',
     'Realizado': '<span class="badge badge-success">Realizado</span>',
     'Faltou':    '<span class="badge" style="background:#e53e3e;color:#fff">Faltou</span>',
+    'Falta Justificada': '<span class="badge" style="background:#d97706;color:#fff">Falta Justificada</span>',
 };
 
 function renderTable(data) {
@@ -119,11 +120,23 @@ function renderTable(data) {
             paymentMethodCell = `<td>${item.payment_method || '<span class="text-muted">—</span>'}</td>`;
         }
 
+        const isAbsence = item.status === 'Faltou' || item.status === 'Falta Justificada';
         const paid = item.amount_paid != null ? item.amount_paid : null;
-        if (paid != null) total += paid;
-        amountCell = paid != null
-            ? `<td style="font-weight:600;color:var(--success)">R$ ${paid.toFixed(2).replace('.', ',')}</td>`
-            : `<td><span class="text-muted">—</span></td>`;
+
+        // Não contabiliza o valor no resumo se o paciente faltou (seja falta justificada ou não)
+        if (paid != null && !isAbsence) {
+            total += paid;
+        }
+
+        if (paid != null) {
+            if (isAbsence) {
+                amountCell = `<td><span class="text-muted" style="text-decoration: line-through;" title="Não contabilizado no total semanal por motivo de falta">R$ ${paid.toFixed(2).replace('.', ',')}</span> <small class="text-muted" style="font-size:0.75rem;">(Falta)</small></td>`;
+            } else {
+                amountCell = `<td style="font-weight:600;color:var(--success)">R$ ${paid.toFixed(2).replace('.', ',')}</td>`;
+            }
+        } else {
+            amountCell = `<td><span class="text-muted">—</span></td>`;
+        }
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
