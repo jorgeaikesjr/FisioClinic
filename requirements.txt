@@ -12,5 +12,6 @@ pandas
 xlrd
 openpyxl
 psycopg2-binary
+psycopg[binary]
 bcrypt
 PyJWT

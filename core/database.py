@@ -25,9 +25,17 @@ engine_kwargs = {}
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args["check_same_thread"] = False
 elif settings.DATABASE_URL.startswith("postgresql"):
-    # No Vercel (serverless) usando Supabase Pooler (PgBouncer porta 6543 em Transaction Mode),
-    # é essencial usar NullPool para evitar que o SQLAlchemy retenha conexões inválidas/inconsistentes.
-    engine_kwargs["poolclass"] = NullPool
+    import os
+    if os.getenv("VERCEL"):
+        # No Vercel (serverless) usando Supabase Pooler (PgBouncer porta 6543 em Transaction Mode),
+        # é essencial usar NullPool para evitar que o SQLAlchemy retenha conexões inválidas/inconsistentes.
+        engine_kwargs["poolclass"] = NullPool
+    else:
+        # Em container persistente (Coolify / VPS / Docker), usa pool de conexões otimizado
+        engine_kwargs["pool_size"] = 10
+        engine_kwargs["max_overflow"] = 20
+        engine_kwargs["pool_recycle"] = 300
+        engine_kwargs["pool_pre_ping"] = True
 
 print(f"Conectando ao banco de dados: {settings.DATABASE_URL.split('://')[0]}://...")
 
